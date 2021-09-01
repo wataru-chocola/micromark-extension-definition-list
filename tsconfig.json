@@ -1,0 +1,14 @@
+{
+  "include": [
+    "./dev/**/*.ts"
+  ],
+  "compilerOptions": {
+    "target": "es2020",
+    "strict": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
