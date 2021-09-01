@@ -279,7 +279,7 @@ function tokenizeDefListStart(
     );
   }
 
-  function onBlank(code: Code): State | void {
+  function onBlank(_code: Code): State | void {
     console.log('start: on blank');
     self.containerState!.initialBlankLine = true;
     initialSize++;

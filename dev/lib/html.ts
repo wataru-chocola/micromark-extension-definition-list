@@ -3,7 +3,7 @@ import { tokenTypes } from './types';
 
 export const defListHtml = {
   enter: {
-    [tokenTypes.defList](this: CompileContext, token: Token): void {
+    [tokenTypes.defList](this: CompileContext): void {
       this.lineEndingIfNeeded();
       this.tag('<dl>');
     },
@@ -25,7 +25,7 @@ export const defListHtml = {
     [tokenTypes.defListTerm](this: CompileContext): void {
       this.tag('</dt>');
     },
-    [tokenTypes.defListDescription](this: CompileContext, token: Token): void {
+    [tokenTypes.defListDescription](this: CompileContext): void {
       (this.getData('tightStack') as boolean[]).pop();
       this.tag('</dd>');
     },
