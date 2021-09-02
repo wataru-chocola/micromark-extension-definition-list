@@ -112,6 +112,26 @@ the family Rosaceae.</p>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('definition term can be decorated', () => {
+  const result = parse(`
+A**pp**le
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+:   The fruit of an evergreen tree of the genus Citrus.
+`);
+  const expected = `
+<dl>
+<dt>A<strong>pp</strong>le</dt>
+<dd>Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</dd>
+<dt>Orange</dt>
+<dd>The fruit of an evergreen tree of the genus Citrus.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList can contain multiple paragraph and other block-level elements', () => {
   const result = parse(`
 Term 1
