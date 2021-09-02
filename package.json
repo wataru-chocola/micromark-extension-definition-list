@@ -12,8 +12,11 @@
     "micromark-util-types": "^1.0.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.15.0",
     "@babel/plugin-transform-modules-commonjs": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.6.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
@@ -39,9 +42,14 @@
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"./dev/**/*.{js,ts,json}\"",
-    "typecheck": "tsc",
-    "lint": "eslint ./dev/**/*.{ts,js}",
-    "lint-fix": "eslint --fix ./dev/**/*.{ts,js} && prettier --write ./dev/**/*.{ts,js}",
-    "test": "jest"
+    "lint": "eslint ./dev/**/*.{ts}",
+    "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
+    "test": "npm run build && jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
+    "test-dev": "tsc && jest \"dev/.*\\.test\\.js\"",
+    "build": "tsc && micromark-build"
+  },
+  "exports": {
+    "development": "./dev/index.js",
+    "default": "./index.js"
   }
 }

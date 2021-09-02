@@ -1,6 +1,4 @@
-import { types } from 'micromark-util-symbol/types';
-
-export const tokenTypes = Object.assign(types, {
+export const tokenTypes = {
   defList: 'defList',
   defListTerm: 'defListTerm',
   defListDescriptionMarker: 'defListDescriptionMarker',
@@ -8,4 +6,4 @@ export const tokenTypes = Object.assign(types, {
   defListDescriptionPrefixWhitespace: 'defListDescriptionPrefixWhitespace',
   defListDescription: 'defListDescription',
   defListDescriptionIndent: 'defListDescriptionIndent',
-});
+};

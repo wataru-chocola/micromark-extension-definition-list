@@ -13,8 +13,8 @@ import { types } from 'micromark-util-symbol/types';
 import { factorySpace } from 'micromark-factory-space';
 import { constants } from 'micromark-util-symbol/constants.js';
 import { markdownSpace } from 'micromark-util-character';
-import { blankLine } from 'micromark-core-commonmark/dev/lib/blank-line';
-import { tokenTypes } from './types';
+import { blankLine } from 'micromark-core-commonmark';
+import { tokenTypes } from './types.js';
 import assert from 'assert';
 
 interface TokenizeContextWithDefState extends TokenizeContext {
