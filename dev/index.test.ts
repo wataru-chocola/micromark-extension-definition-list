@@ -232,3 +232,26 @@ Not Term
 `;
   expect(result).toEqual(expected.trimLeft());
 });
+
+test('no more than two blank lines between term and description', () => {
+  const result = parse(`
+Apple
+
+
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+
+
+:   The fruit of an evergreen tree of the genus Citrus.
+`);
+  const expected = `
+<p>Apple</p>
+<p>:   Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</p>
+<p>Orange</p>
+<p>:   The fruit of an evergreen tree of the genus Citrus.</p>
+`;
+  expect(result).toEqual(expected.trimLeft());
+});

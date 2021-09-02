@@ -233,12 +233,19 @@ function tokenizeDefListStart(
   }
 
   let paragraph = false;
+  let blanklines = 0;
   if (flowEvents != null && termFlowStart != null) {
     let tmpIndex = flowEvents.length;
     while (tmpIndex--) {
       const flowEvent = flowEvents[tmpIndex];
       if (flowEvent[1].start.offset < termFlowStart[1].start.offset) {
         break;
+      }
+      if (flowEvent[0] === 'enter' && flowEvent[1].type === types.lineEndingBlank) {
+        if (blanklines >= 1) {
+          break;
+        }
+        blanklines++;
       }
       if (
         flowEvent[1].type !== types.lineEnding &&
