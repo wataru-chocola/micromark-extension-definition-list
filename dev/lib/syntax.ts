@@ -15,6 +15,7 @@ import { constants } from 'micromark-util-symbol/constants.js';
 import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
+import { splice } from 'micromark-util-chunked';
 import assert from 'assert';
 import Debug from 'debug';
 
@@ -105,7 +106,7 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
         events[index + 1][1].type === tokenTypes.defList
       ) {
         event[1].end = Object.assign({}, events[index + 1][1].end);
-        events.splice(index, 2);
+        splice(events, index, 2, []);
         index -= 1;
       } else {
         const token = dlStack.pop();
@@ -151,7 +152,7 @@ function resolveDefinitionTermTo(
   }
 
   const defListEnterEvent = events[defList_start];
-  events.splice(defList_start, 1);
+  splice(events, defList_start, 1, []);
 
   let flowIndex_exit: number | undefined;
   let startIndex = 0;
@@ -177,8 +178,8 @@ function resolveDefinitionTermTo(
         start: Object.assign({}, events[i][1].start),
         end: Object.assign({}, events[i][1].end),
       };
-      events.splice(flowIndex_exit + 1, 0, ['exit', termToken, context]);
-      events.splice(i, 0, ['enter', termToken, context]);
+      splice(events, flowIndex_exit + 1, 0, [['exit', termToken, context]]);
+      splice(events, i, 0, [['enter', termToken, context]]);
 
       flowIndex_exit = undefined;
     } else {
@@ -187,11 +188,11 @@ function resolveDefinitionTermTo(
   }
 
   defListEnterEvent[1].start = Object.assign({}, events[startIndex][1].start);
-  events.splice(startIndex, 0, defListEnterEvent);
+  splice(events, startIndex, 0, [defListEnterEvent]);
 
   if (paraEnterIndex != null && paraExitIndex != null) {
-    flowEvents.splice(paraExitIndex, 1);
-    flowEvents.splice(paraEnterIndex, 1);
+    splice(flowEvents, paraExitIndex, 1, []);
+    splice(flowEvents, paraEnterIndex, 1, []);
   }
 
   return startIndex - defList_start;
