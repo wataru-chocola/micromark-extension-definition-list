@@ -1,3 +1,9 @@
+# ignore build result
+/index.js
+/index.test.js
+/dev/**/*.js
+/lib
+
 # Logs
 logs
 *.log

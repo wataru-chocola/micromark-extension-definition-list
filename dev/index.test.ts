@@ -1,4 +1,4 @@
-import { defList, defListHtml } from './index';
+import { defList, defListHtml } from './index.js';
 import { micromark } from 'micromark';
 
 const parse = (md: string) =>

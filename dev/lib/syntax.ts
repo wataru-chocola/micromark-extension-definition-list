@@ -13,9 +13,12 @@ import { types } from 'micromark-util-symbol/types';
 import { factorySpace } from 'micromark-factory-space';
 import { constants } from 'micromark-util-symbol/constants.js';
 import { markdownSpace } from 'micromark-util-character';
-import { blankLine } from 'micromark-core-commonmark/dev/lib/blank-line';
-import { tokenTypes } from './types';
+import { blankLine } from 'micromark-core-commonmark';
+import { tokenTypes } from './types.js';
 import assert from 'assert';
+import Debug from 'debug';
+
+const debug = Debug('micromark-extension-definition-list:syntax');
 
 interface TokenizeContextWithDefState extends TokenizeContext {
   containerState?: {
@@ -49,24 +52,25 @@ export const defList: Extension = {
   document: { [codes.colon]: defListConstruct, null: [] },
 };
 
-function inspectEvents(events: Event[] | undefined): void {
+function formatEvents(events: Event[] | undefined): [string, string, string][] | undefined {
   if (events == null) {
     return;
   }
-  events.forEach((x) => {
+  return events.map((x) => {
     let content = '';
     try {
       content = x[2].sliceSerialize(x[1], true);
     } catch (e) {
       content = '<maybe incomplete token>';
     }
-    console.log([x[0], x[1].type, content]);
+    return [x[0], x[1].type, content];
   });
 }
 
 function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Event[] {
-  console.log('resolveAll');
-  inspectEvents(events);
+  debug('resolveAll');
+  debug('original events:');
+  debug(formatEvents(events));
 
   let index = 0;
   while (index < events.length) {
@@ -112,8 +116,8 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
     index++;
   }
 
-  console.log('modified events');
-  inspectEvents(events);
+  debug('modified events:');
+  debug(formatEvents(events));
   return events;
 }
 
@@ -199,7 +203,7 @@ function tokenizeDefListStart(
   ok: State,
   nok: State,
 ): State {
-  console.log('initialize tokenizer');
+  debug('initialize tokenizer');
   const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
   if (self.containerState == null) {
     self.containerState = {};
@@ -260,7 +264,7 @@ function tokenizeDefListStart(
   return start;
 
   function start(code: Code): State | void {
-    console.log('start: start' + String(code));
+    debug('start: start' + String(code));
     if (code !== codes.colon) {
       return nok(code);
     }
@@ -280,14 +284,14 @@ function tokenizeDefListStart(
   }
 
   function onBlank(_code: Code): State | void {
-    console.log('start: on blank');
+    debug('start: on blank');
     self.containerState!.initialBlankLine = true;
     initialSize++;
     return prefixEnd;
   }
 
   function otherPrefix(code: Code): State | void {
-    console.log('start: other prefix');
+    debug('start: other prefix');
     if (markdownSpace(code)) {
       effects.enter(tokenTypes.defListDescriptionPrefixWhitespace);
       effects.consume(code);
@@ -298,7 +302,7 @@ function tokenizeDefListStart(
   }
 
   function prefixEnd(code: Code): State | void {
-    console.log('start: prefix end');
+    debug('start: prefix end');
     self.containerState!.size =
       initialSize +
       self.sliceSerialize(effects.exit(tokenTypes.defListDescriptionPrefix), true).length;
@@ -318,7 +322,7 @@ function tokenizeDefListContinuation(
   return effects.check(blankLine, onBlank, notBlank);
 
   function onBlank(code: Code): State | void {
-    console.log('continuous: on blank');
+    debug('continuous: on blank');
     self.containerState!.furtherBlankLines =
       self.containerState!.furtherBlankLines || self.containerState!.initialBlankLine;
     self.containerState!.lastBlankLine = true;
@@ -332,7 +336,7 @@ function tokenizeDefListContinuation(
   }
 
   function notBlank(code: Code): State | void {
-    console.log('continuous: not blank');
+    debug('continuous: not blank');
     if (self.containerState!.furtherBlankLines || !markdownSpace(code)) {
       self.containerState!.furtherBlankLines = undefined;
       self.containerState!.initialBlankLine = undefined;
@@ -346,7 +350,7 @@ function tokenizeDefListContinuation(
   }
 
   function notInCurrentItem(code: Code): State | void {
-    console.log('continuous: not in current item');
+    debug('continuous: not in current item');
     self.containerState!._closeFlow = true;
     self.interrupt = undefined;
 
@@ -404,7 +408,7 @@ function tokenizeDefListDescriptionPrefixWhitespace(
 
   function afterPrefix(code: Code): State | void {
     const tail = self.events[self.events.length - 1];
-    console.log('whitespace');
+    debug('whitespace');
 
     return !markdownSpace(code) &&
       tail &&
@@ -415,7 +419,7 @@ function tokenizeDefListDescriptionPrefixWhitespace(
 }
 
 function tokenizeDefListEnd(this: TokenizeContext, effects: Effects): void {
-  console.log('container end');
+  debug('container end');
   effects.exit(tokenTypes.defListDescription);
   effects.exit(tokenTypes.defList);
 }
