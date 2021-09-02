@@ -29,6 +29,7 @@
     "jest": "^27.0.6",
     "micromark": "^3.0.5",
     "prettier": "2.3.2",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.0.5",
     "typescript": "^4.3.5"
   },
@@ -46,7 +47,8 @@
     "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
     "test": "npm run build && jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
     "test-dev": "tsc && jest \"dev/.*\\.test\\.js\"",
-    "build": "tsc && micromark-build"
+    "build": "npm run clean && tsc && micromark-build",
+    "clean": "rimraf lib/ index.js index.test.js dev/**/*.js"
   },
   "exports": {
     "development": "./dev/index.js",
