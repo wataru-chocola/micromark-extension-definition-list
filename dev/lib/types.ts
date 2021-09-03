@@ -5,5 +5,4 @@ export const tokenTypes = {
   defListDescriptionPrefix: 'defListDescriptionPrefix',
   defListDescriptionPrefixWhitespace: 'defListDescriptionPrefixWhitespace',
   defListDescription: 'defListDescription',
-  defListDescriptionIndent: 'defListDescriptionIndent',
 };

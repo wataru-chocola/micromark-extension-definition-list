@@ -101,13 +101,23 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
       dlStack.push(event[1]);
     } else if (event[0] === 'exit' && event[1].type === tokenTypes.defList) {
       if (
-        index < events.length - 1 &&
+        index < events.length - 2 &&
         events[index + 1][0] === 'enter' &&
         events[index + 1][1].type === tokenTypes.defList
       ) {
         event[1].end = Object.assign({}, events[index + 1][1].end);
         splice(events, index, 2, []);
         index -= 1;
+      } else if (
+        index < events.length - 4 &&
+        events[index + 1][1].type === types.linePrefix &&
+        events[index + 2][1].type === types.linePrefix &&
+        events[index + 3][0] === 'enter' &&
+        events[index + 3][1].type === tokenTypes.defList
+      ) {
+        event[1].end = Object.assign({}, events[index + 3][1].end);
+        splice(events, index, 4, []);
+        index -= 3;
       } else {
         const token = dlStack.pop();
         assert(token != null, 'expect a token of balanced enter event');
@@ -128,8 +138,14 @@ function resolveDefinitionTermTo(
   context: TokenizeContext,
 ): number {
   let flowIndex: number | undefined;
-  if (events[defList_start - 1][1].type === types.chunkFlow) {
-    flowIndex = defList_start - 1;
+  for (let i = defList_start - 1; i >= 0; i--) {
+    if (events[i][1].type === types.linePrefix) {
+      continue;
+    }
+    if (events[i][1].type === types.chunkFlow) {
+      flowIndex = i;
+    }
+    break;
   }
   assert(flowIndex !== undefined, 'expected a chunkFlow found');
   const flowEvents = events[flowIndex][1]._tokenizer!.events;
@@ -389,12 +405,7 @@ function tokenizeDefListContinuation(
       self.containerState!.furtherBlankLines || self.containerState!.initialBlankLine;
     self.containerState!.lastBlankLine = true;
 
-    return factorySpace(
-      effects,
-      ok,
-      tokenTypes.defListDescriptionIndent,
-      self.containerState!.size! + 1,
-    )(code);
+    return factorySpace(effects, ok, types.linePrefix, self.containerState!.size! + 1)(code);
   }
 
   function notBlank(code: Code): State | void {
@@ -435,17 +446,12 @@ function tokenizeIndent(
 ): State {
   const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
 
-  return factorySpace(
-    effects,
-    afterPrefix,
-    tokenTypes.defListDescriptionIndent,
-    self.containerState!.size! + 1,
-  );
+  return factorySpace(effects, afterPrefix, types.linePrefix, self.containerState!.size! + 1);
 
   function afterPrefix(code: Code): State | void {
     const tail = self.events[self.events.length - 1];
     return tail &&
-      tail[1].type === tokenTypes.defListDescriptionIndent &&
+      tail[1].type === types.linePrefix &&
       tail[2].sliceSerialize(tail[1], true).length === self.containerState!.size!
       ? ok(code)
       : nok(code);

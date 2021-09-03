@@ -184,6 +184,48 @@ the family Rosaceae.</dd>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('nested defList', () => {
+  const result = parse(`
+Term 1
+
+:   This is a definition wrapped by paragraph.
+
+    Nested term 1
+    :   Nested description here.
+        And next line.
+    
+    Nested term 2
+    :   Description 2.
+
+:   Description.
+
+Term 2
+
+:   Description.
+`);
+  const expected = `
+<dl>
+<dt>Term 1</dt>
+<dd>
+<p>This is a definition wrapped by paragraph.</p>
+<dl>
+<dt>Nested term 1</dt>
+<dd>Nested description here.
+And next line.</dd>
+<dt>Nested term 2</dt>
+<dd>Description 2.</dd>
+</dl></dd>
+<dd>
+<p>Description.</p>
+</dd>
+<dt>Term 2</dt>
+<dd>
+<p>Description.</p>
+</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList can contain multiple paragraph and other block-level elements', () => {
   const result = parse(`
 Term 1
