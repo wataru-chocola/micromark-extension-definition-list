@@ -242,6 +242,44 @@ on two lines.</p>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('document with multiple defList and other contents', () => {
+  const result = parse(`
+# Header 1
+
+Term 1
+:   Description 1
+:   Description 2
+
+Term 2
+:   Description 3
+
+This is paragraph.
+
+New Term A
+: Description A
+  with countinous line.
+: Description B
+
+`);
+  const expected = `
+<h1>Header 1</h1>
+<dl>
+<dt>Term 1</dt>
+<dd>Description 1</dd>
+<dd>Description 2</dd>
+<dt>Term 2</dt>
+<dd>Description 3</dd>
+</dl>
+<p>This is paragraph.</p>
+<dl>
+<dt>New Term A</dt>
+<dd>Description A
+with countinous line.</dd>
+<dd>Description B</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList cannot start without any term', () => {
   const result = parse(`
 : Definition a
