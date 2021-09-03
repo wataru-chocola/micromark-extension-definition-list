@@ -132,6 +132,58 @@ the family Rosaceae.</dd>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('definition term with markdown definition', () => {
+  const result = parse(`
+[ra]: http://example.com/ra
+A[pp]le
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+O[ra]nge
+:   The fruit of an evergreen tree of the genus Citrus.
+
+[pp]: http://example.com/
+`);
+  const expected = `
+<dl>
+<dt>A<a href="http://example.com/">pp</a>le</dt>
+<dd>Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</dd>
+<dt>O<a href="http://example.com/ra">ra</a>nge</dt>
+<dd>The fruit of an evergreen tree of the genus Citrus.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('definition before dd-like paragraph (1)', () => {
+  const result = parse(`
+[fruit]: http://example.com/fruit
+
+:   Pomaceous [fruit] of plants of the genus Malus in 
+    the family Rosaceae.
+`);
+  const expected = `
+<p>:   Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
+the family Rosaceae.</p>
+`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('definition before dd-like paragraph (2)', () => {
+  const result = parse(`
+[fruit]: http://example.com/fruit
+:   Pomaceous [fruit] of plants of the genus Malus in 
+    the family Rosaceae.
+`);
+  const expected = `
+<dl>
+<dt></dt>
+<dd>Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
+the family Rosaceae.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList can contain multiple paragraph and other block-level elements', () => {
   const result = parse(`
 Term 1
