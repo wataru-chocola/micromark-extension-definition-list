@@ -112,6 +112,120 @@ the family Rosaceae.</p>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('definition term can be decorated', () => {
+  const result = parse(`
+A**pp**le
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+:   The fruit of an evergreen tree of the genus Citrus.
+`);
+  const expected = `
+<dl>
+<dt>A<strong>pp</strong>le</dt>
+<dd>Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</dd>
+<dt>Orange</dt>
+<dd>The fruit of an evergreen tree of the genus Citrus.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('definition term with markdown definition', () => {
+  const result = parse(`
+[ra]: http://example.com/ra
+A[pp]le
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+O[ra]nge
+:   The fruit of an evergreen tree of the genus Citrus.
+
+[pp]: http://example.com/
+`);
+  const expected = `
+<dl>
+<dt>A<a href="http://example.com/">pp</a>le</dt>
+<dd>Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</dd>
+<dt>O<a href="http://example.com/ra">ra</a>nge</dt>
+<dd>The fruit of an evergreen tree of the genus Citrus.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('definition before dd-like paragraph (1)', () => {
+  const result = parse(`
+[fruit]: http://example.com/fruit
+
+:   Pomaceous [fruit] of plants of the genus Malus in 
+    the family Rosaceae.
+`);
+  const expected = `
+<p>:   Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
+the family Rosaceae.</p>
+`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('definition before dd-like paragraph (2)', () => {
+  const result = parse(`
+[fruit]: http://example.com/fruit
+:   Pomaceous [fruit] of plants of the genus Malus in 
+    the family Rosaceae.
+`);
+  const expected = `
+<dl>
+<dt></dt>
+<dd>Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
+the family Rosaceae.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('nested defList', () => {
+  const result = parse(`
+Term 1
+
+:   This is a definition wrapped by paragraph.
+
+    Nested term 1
+    :   Nested description here.
+        And next line.
+    
+    Nested term 2
+    :   Description 2.
+
+:   Description.
+
+Term 2
+
+:   Description.
+`);
+  const expected = `
+<dl>
+<dt>Term 1</dt>
+<dd>
+<p>This is a definition wrapped by paragraph.</p>
+<dl>
+<dt>Nested term 1</dt>
+<dd>Nested description here.
+And next line.</dd>
+<dt>Nested term 2</dt>
+<dd>Description 2.</dd>
+</dl></dd>
+<dd>
+<p>Description.</p>
+</dd>
+<dt>Term 2</dt>
+<dd>
+<p>Description.</p>
+</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList can contain multiple paragraph and other block-level elements', () => {
   const result = parse(`
 Term 1
@@ -170,6 +284,44 @@ on two lines.</p>
   expect(result).toEqual(expected.trimLeft());
 });
 
+test('document with multiple defList and other contents', () => {
+  const result = parse(`
+# Header 1
+
+Term 1
+:   Description 1
+:   Description 2
+
+Term 2
+:   Description 3
+
+This is paragraph.
+
+New Term A
+: Description A
+  with countinous line.
+: Description B
+
+`);
+  const expected = `
+<h1>Header 1</h1>
+<dl>
+<dt>Term 1</dt>
+<dd>Description 1</dd>
+<dd>Description 2</dd>
+<dt>Term 2</dt>
+<dd>Description 3</dd>
+</dl>
+<p>This is paragraph.</p>
+<dl>
+<dt>New Term A</dt>
+<dd>Description A
+with countinous line.</dd>
+<dd>Description B</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
 test('defList cannot start without any term', () => {
   const result = parse(`
 : Definition a
@@ -209,6 +361,29 @@ Not Term
 Not Term
 : Definition a</p>
 </blockquote>
+`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('no more than two blank lines between term and description', () => {
+  const result = parse(`
+Apple
+
+
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+
+
+:   The fruit of an evergreen tree of the genus Citrus.
+`);
+  const expected = `
+<p>Apple</p>
+<p>:   Pomaceous fruit of plants of the genus Malus in
+the family Rosaceae.</p>
+<p>Orange</p>
+<p>:   The fruit of an evergreen tree of the genus Citrus.</p>
 `;
   expect(result).toEqual(expected.trimLeft());
 });
