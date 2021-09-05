@@ -7,7 +7,6 @@ module.exports = {
   coverageProvider: 'v8',
 
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.jsx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
