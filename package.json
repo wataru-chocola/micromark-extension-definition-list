@@ -1,6 +1,6 @@
 {
   "name": "micromark-extension-definition-list",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "micromark extension to support definition lists",
   "author": "Wataru Watanabe",
   "license": "MIT",
