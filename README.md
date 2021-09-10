@@ -44,7 +44,7 @@ const output = micromark(markdown, {
 ```
 
 
-## Test in develepment
+## Test in development
 
 For development purpose, you can run tests with debug messages.
 
