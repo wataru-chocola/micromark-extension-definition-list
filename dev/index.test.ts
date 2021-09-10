@@ -108,7 +108,8 @@ the family Rosaceae.</p>
 <dd>
 <p>The fruit of an evergreen tree of the genus Citrus.</p>
 </dd>
-</dl>`;
+</dl>
+`;
   expect(result).toEqual(expected.trimLeft());
 });
 
@@ -222,7 +223,8 @@ And next line.</dd>
 <dd>
 <p>Description.</p>
 </dd>
-</dl>`;
+</dl>
+`;
   expect(result).toEqual(expected.trimLeft());
 });
 
@@ -280,7 +282,8 @@ on two lines.</p>
 <li>second list item</li>
 </ol>
 </dd>
-</dl>`;
+</dl>
+`;
   expect(result).toEqual(expected.trimLeft());
 });
 
@@ -385,5 +388,53 @@ the family Rosaceae.</p>
 <p>Orange</p>
 <p>:   The fruit of an evergreen tree of the genus Citrus.</p>
 `;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('regression: list inside dd followed by another dd without emptyline', () => {
+  const result = parse(`
+Term1
+: Description 1.
+    * li1
+    * li2
+    * li3
+: Description 2.
+`);
+  const expected = `
+<dl>
+<dt>Term1</dt>
+<dd>Description 1.
+<ul>
+<li>li1</li>
+<li>li2</li>
+<li>li3</li>
+</ul>
+</dd>
+<dd>Description 2.</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
+
+test('regression: list inside dd followed by not-dd text without emptyline', () => {
+  const result = parse(`
+Term1
+: Description 1.
+    * li1
+    * li2
+NotTerm2
+: Description 2.
+`);
+  const expected = `
+<dl>
+<dt>Term1</dt>
+<dd>Description 1.
+<ul>
+<li>li1</li>
+<li>li2
+NotTerm2</li>
+</ul>
+</dd>
+<dd>Description 2.</dd>
+</dl>`;
   expect(result).toEqual(expected.trimLeft());
 });
