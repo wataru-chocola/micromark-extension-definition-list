@@ -79,7 +79,7 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
     if (event[0] === 'enter' && event[1].type === tokenTypes.defList) {
       // create definition terms and adjust start of defList
       index += resolveDefinitionTermTo(index, events, context);
-    } else if (event[0] === 'enter' && event[1].type === tokenTypes.defListDescription) {
+    } else if (event[0] === 'enter' && event[1].type === tokenTypes.defListDescriptionPrefix) {
       // mark loose definition description
       assert(index > 0, 'expect some events before defListDescription');
       if (events[index - 1][1].type === types.chunkFlow) {
@@ -347,9 +347,10 @@ function tokenizeDefListStart(
       return nok(code);
     }
 
-    effects.enter(tokenTypes.defListDescription, { _loose: self.containerState?.lastBlankLine });
+    effects.enter(tokenTypes.defListDescriptionPrefix, {
+      _loose: self.containerState?.lastBlankLine,
+    });
     self.containerState!.lastBlankLinke = undefined;
-    effects.enter(tokenTypes.defListDescriptionPrefix);
     effects.enter(tokenTypes.defListDescriptionMarker);
     effects.consume(code);
     effects.exit(tokenTypes.defListDescriptionMarker);
@@ -427,8 +428,6 @@ function tokenizeDefListContinuation(
     self.containerState!._closeFlow = true;
     self.interrupt = undefined;
 
-    effects.exit(tokenTypes.defListDescription);
-
     return factorySpace(
       effects,
       effects.attempt(defListConstruct, ok, nok),
@@ -488,6 +487,5 @@ function tokenizeDefListDescriptionPrefixWhitespace(
 
 function tokenizeDefListEnd(this: TokenizeContext, effects: Effects): void {
   debug('container end');
-  effects.exit(tokenTypes.defListDescription);
   effects.exit(tokenTypes.defList);
 }
