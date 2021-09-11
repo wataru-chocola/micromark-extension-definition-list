@@ -4,4 +4,5 @@ export const tokenTypes = {
   defListDescriptionMarker: 'defListDescriptionMarker',
   defListDescriptionPrefix: 'defListDescriptionPrefix',
   defListDescriptionPrefixWhitespace: 'defListDescriptionPrefixWhitespace',
+  defListDescription: 'defListDescription',
 };
