@@ -1,5 +1,7 @@
 # micromark-extension-definition-list
 
+[![Node.js CI](https://github.com/wataru-chocola/micromark-extension-definition-list/actions/workflows/node.js.yml/badge.svg)](https://github.com/wataru-chocola/micromark-extension-definition-list/actions/workflows/node.js.yml)
+
 [micromark](https://github.com/micromark/micromark) extension to support definition lists.
 
 ## Feature
