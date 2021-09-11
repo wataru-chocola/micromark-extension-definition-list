@@ -108,8 +108,7 @@ the family Rosaceae.</p>
 <dd>
 <p>The fruit of an evergreen tree of the genus Citrus.</p>
 </dd>
-</dl>
-`;
+</dl>`;
   expect(result).toEqual(expected.trimLeft());
 });
 
@@ -223,8 +222,7 @@ And next line.</dd>
 <dd>
 <p>Description.</p>
 </dd>
-</dl>
-`;
+</dl>`;
   expect(result).toEqual(expected.trimLeft());
 });
 
@@ -282,8 +280,7 @@ on two lines.</p>
 <li>second list item</li>
 </ol>
 </dd>
-</dl>
-`;
+</dl>`;
   expect(result).toEqual(expected.trimLeft());
 });
 

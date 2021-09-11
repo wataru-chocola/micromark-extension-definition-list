@@ -7,6 +7,7 @@ import {
   Effects,
   Point,
   TokenizeContext,
+  Token,
 } from 'micromark-util-types';
 import { codes } from 'micromark-util-symbol/codes';
 import { types } from 'micromark-util-symbol/types';
@@ -77,17 +78,8 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
   while (index < events.length) {
     const event = events[index];
     if (event[0] === 'enter' && event[1].type === tokenTypes.defList) {
-      // create definition terms and adjust start of defList
-      index += resolveDefinitionTermTo(index, events, context);
-    } else if (event[0] === 'enter' && event[1].type === tokenTypes.defListDescriptionPrefix) {
-      // mark loose definition description
-      assert(index > 0, 'expect some events before defListDescription');
-      if (events[index - 1][1].type === types.chunkFlow) {
-        const flowEvents = events[index - 1][1]._tokenizer!.events;
-        if (flowEvents[flowEvents.length - 1][1].type === types.lineEndingBlank) {
-          event[1]._loose = true;
-        }
-      }
+      // create defListTerms and defListDescriptions inside defList
+      index += resolveDefList(index, events, context);
     }
     index++;
   }
@@ -124,12 +116,76 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
         event[1] = token;
       }
     }
+
     index++;
   }
 
   debug('modified events:');
   debug(formatEvents(events));
   return events;
+}
+
+function resolveDefList(defList_start: number, events: Event[], context: TokenizeContext): number {
+  let indexOffset = 0;
+
+  let defListDescriptionToken: Token | undefined;
+  let expectFirstDescription = true;
+  let index = defList_start + 1;
+  index += resolveDefinitionTermTo(defList_start, events, context);
+
+  while (index < events.length) {
+    const event = events[index];
+    if (event[0] === 'enter' && event[1].type === tokenTypes.defList) {
+      index += resolveDefList(index, events, context);
+    }
+    if (event[0] === 'exit' && event[1].type === tokenTypes.defList) {
+      index += addDescriptionExit(index, events);
+      defListDescriptionToken = undefined;
+      indexOffset = index - defList_start;
+      break;
+    }
+    if (event[0] === 'exit' && event[1].type === tokenTypes.defListDescriptionPrefix) {
+      if (!expectFirstDescription) {
+        index += addDescriptionExit(index, events);
+        defListDescriptionToken = undefined;
+      }
+      index += addDescriptionEnter(index, events, event[1]._loose);
+      expectFirstDescription = false;
+    }
+    if (event[0] === 'enter' && event[1].type === tokenTypes.defListDescriptionPrefix) {
+      // mark loose definition description
+      assert(index > 0, 'expect some events before defListDescription');
+      if (events[index - 1][1].type === types.chunkFlow) {
+        const flowEvents = events[index - 1][1]._tokenizer!.events;
+        if (flowEvents[flowEvents.length - 1][1].type === types.lineEndingBlank) {
+          event[1]._loose = true;
+        }
+      }
+    }
+
+    index++;
+  }
+  return indexOffset;
+
+  function addDescriptionEnter(index: number, events: Event[], loose: boolean | undefined): number {
+    const indexOffset = 1;
+    defListDescriptionToken = {
+      type: tokenTypes.defListDescription,
+      start: Object.assign({}, events[index + 1][1].start),
+      end: Object.assign({}, events[index + 1][1].end),
+      _loose: loose,
+    };
+    splice(events, index + 1, 0, [['enter', defListDescriptionToken, context]]);
+    return indexOffset;
+  }
+
+  function addDescriptionExit(index: number, events: Event[]): number {
+    const indexOffset = 1;
+    assert(defListDescriptionToken != null);
+    defListDescriptionToken.end = Object.assign({}, events[index - 1][1].end);
+    splice(events, index, 0, [['exit', defListDescriptionToken, context]]);
+    return indexOffset;
+  }
 }
 
 function resolveDefinitionTermTo(
@@ -202,16 +258,12 @@ function resolveDefinitionTermTo(
     // create terms from chunkFlow inside paragraph
     let flowIndex_exit: number | undefined;
     for (let i = flowIndex; i >= 0; i--) {
-      if (events[i][1].type !== types.chunkFlow) {
-        startIndex = i + 1;
-        break;
-      }
-      if (events[i][1].start.offset < paraStart.offset) {
-        startIndex = i + 1;
-        break;
-      }
       if (events[i][1].start.offset > paraEnd.offset) {
         continue;
+      }
+      if (events[i][1].type !== types.chunkFlow || events[i][1].start.offset < paraStart.offset) {
+        startIndex = i + 1;
+        break;
       }
 
       if (events[i][0] === 'enter') {
