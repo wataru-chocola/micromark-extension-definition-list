@@ -14,6 +14,7 @@
   "homepage": "https://github.com/wataru-chocola/micromark-extension-definition-list",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "type": "module",
   "files": [
     "dev/**/*.js",
     "dev/**/*.d.ts",
@@ -37,16 +38,10 @@
     "micromark-util-types": "^1.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.8",
-    "@babel/core": "^7.15.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.15.0",
-    "@babel/preset-env": "^7.15.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.6.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^27.0.6",
     "debug": "^4.3.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -69,8 +64,8 @@
     "format": "prettier --write \"./dev/**/*.{js,ts,json}\"",
     "lint": "eslint ./dev/**/*.{ts}",
     "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
-    "test": "npm run build && jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
-    "test-dev": "tsc && jest \"dev/.*\\.test\\.js\"",
+    "test": "npm run build && NODE_OPTIONS=--experimental-vm-modules jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
+    "test-dev": "tsc && NODE_OPTIONS=\"--experimental-vm-modules -C development\" jest \"dev/.*\\.test\\.js\"",
     "build": "npm run clean && tsc && micromark-build",
     "prepack": "npm run build",
     "clean": "rimraf lib/ index.js index.test.js dev/**/*.js"
