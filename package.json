@@ -14,6 +14,7 @@
   "homepage": "https://github.com/wataru-chocola/micromark-extension-definition-list",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "type": "module",
   "files": [
     "dev/**/*.js",
     "dev/**/*.d.ts",
@@ -69,8 +70,8 @@
     "format": "prettier --write \"./dev/**/*.{js,ts,json}\"",
     "lint": "eslint ./dev/**/*.{ts}",
     "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
-    "test": "npm run build && jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
-    "test-dev": "tsc && jest \"dev/.*\\.test\\.js\"",
+    "test": "npm run build && NODE_OPTIONS=--experimental-vm-modules jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
+    "test-dev": "tsc && NODE_OPTIONS=\"--experimental-vm-modules -C development\" jest \"dev/.*\\.test\\.js\"",
     "build": "npm run clean && tsc && micromark-build",
     "prepack": "npm run build",
     "clean": "rimraf lib/ index.js index.test.js dev/**/*.js"

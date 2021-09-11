@@ -6,10 +6,5 @@
 module.exports = {
   coverageProvider: 'v8',
 
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest',
-  },
-  transformIgnorePatterns: [
-    '/node_modules/(?!micromark|unist|mdast-util|parse-entities|character-entities)',
-  ],
+  transform: {},
 };
