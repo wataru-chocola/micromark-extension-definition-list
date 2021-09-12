@@ -7,7 +7,7 @@
 ## Feature
 
 * fully support [Definition Lists Syntax of php-markdown]
-* can be integrated with [remark] / [rehype] / [unified] using [rehype-definition-list] (or [mdast-util-definition-list])
+* can be integrated with [remark] / [rehype] / [unified] using [remark-definition-list] (or [mdast-util-definition-list])
 * shipped with types
 
 [Definition Lists Syntax of php-markdown]: https://michelf.ca/projects/php-markdown/extra/#def-list
@@ -15,7 +15,7 @@
 [rehype]: https://github.com/rehypejs/rehype
 [unified]: https://github.com/unifiedjs/unified
 [mdast-util-definition-list]: https://github.com/wataru-chocola/mdast-util-definition-list
-[rehype-definition-list]: https://github.com/wataru-chocola/rehype-definition-list
+[remark-definition-list]: https://github.com/wataru-chocola/remark-definition-list
 
 ## Install
 
