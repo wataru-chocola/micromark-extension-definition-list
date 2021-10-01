@@ -414,11 +414,11 @@ function tokenizeDefListStart(
     );
   }
 
-  function onBlank(_code: Code): State | void {
+  function onBlank(code: Code): State | void {
     debug('start: on blank');
     self.containerState!.initialBlankLine = true;
     initialSize++;
-    return prefixEnd;
+    return prefixEnd(code);
   }
 
   function otherPrefix(code: Code): State | void {

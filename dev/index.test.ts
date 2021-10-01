@@ -435,3 +435,21 @@ NotTerm2</li>
 </dl>`;
   expect(result).toEqual(expected.trimLeft());
 });
+
+test('regression: blankline followed by fenced code', () => {
+  const result = parse(`
+Term
+:
+    \`\`\`
+    This is test.
+    \`\`\`
+`);
+  const expected = `
+<dl>
+<dt>Term</dt>
+<dd>
+<pre><code>This is test.
+</code></pre></dd>
+</dl>`;
+  expect(result).toEqual(expected.trimLeft());
+});
