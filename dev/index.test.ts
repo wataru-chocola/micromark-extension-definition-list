@@ -21,7 +21,7 @@ the family Rosaceae.</dd>
 <dt>Orange</dt>
 <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition with multiple lines without indentation', () => {
@@ -41,7 +41,7 @@ the family Rosaceae.</dd>
 <dt>Orange</dt>
 <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('have one difinition associated with one term', () => {
@@ -63,7 +63,7 @@ the family Rosaceae.</dd>
 <dt>Orange</dt>
 <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('associate multiple terms to a definition', () => {
@@ -83,7 +83,7 @@ Term 3
 <dt>Term 3</dt>
 <dd>Definition b</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition preceded by a blank line', () => {
@@ -109,7 +109,7 @@ the family Rosaceae.</p>
 <p>The fruit of an evergreen tree of the genus Citrus.</p>
 </dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition term can be decorated', () => {
@@ -129,7 +129,7 @@ the family Rosaceae.</dd>
 <dt>Orange</dt>
 <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition term with markdown definition', () => {
@@ -152,7 +152,7 @@ the family Rosaceae.</dd>
 <dt>O<a href="http://example.com/ra">ra</a>nge</dt>
 <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition before dd-like paragraph (1)', () => {
@@ -166,7 +166,7 @@ test('definition before dd-like paragraph (1)', () => {
 <p>:   Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
 the family Rosaceae.</p>
 `;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('definition before dd-like paragraph (2)', () => {
@@ -181,7 +181,7 @@ test('definition before dd-like paragraph (2)', () => {
 <dd>Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
 the family Rosaceae.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('nested defList', () => {
@@ -223,7 +223,7 @@ And next line.</dd>
 <p>Description.</p>
 </dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('defList can contain multiple paragraph and other block-level elements', () => {
@@ -281,7 +281,7 @@ on two lines.</p>
 </ol>
 </dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('document with multiple defList and other contents', () => {
@@ -319,7 +319,7 @@ New Term A
 with countinous line.</dd>
 <dd>Description B</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('defList cannot start without any term', () => {
@@ -329,7 +329,7 @@ test('defList cannot start without any term', () => {
   const expected = `
 <p>: Definition a</p>
 `;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('defList cannot start without any term (2)', () => {
@@ -346,7 +346,20 @@ test('defList cannot start without any term (2)', () => {
 </ul>
 <p>: Definition a</p>
 `;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
+});
+
+test('defList cannot start without any term, but this IS defList', () => {
+  const result = parse(`
+: Definition a
+: Definition b
+`);
+  const expected = `
+<dl>
+<dt>: Definition a</dt>
+<dd>Definition b</dd>
+</dl>`;
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('defList cannot start from lazy line', () => {
@@ -362,7 +375,7 @@ Not Term
 : Definition a</p>
 </blockquote>
 `;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('no more than two blank lines between term and description', () => {
@@ -385,7 +398,7 @@ the family Rosaceae.</p>
 <p>Orange</p>
 <p>:   The fruit of an evergreen tree of the genus Citrus.</p>
 `;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('regression: list inside dd followed by another dd without emptyline', () => {
@@ -409,7 +422,7 @@ Term1
 </dd>
 <dd>Description 2.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('regression: list inside dd followed by not-dd text without emptyline', () => {
@@ -433,7 +446,7 @@ NotTerm2</li>
 </dd>
 <dd>Description 2.</dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
 });
 
 test('regression: blankline followed by fenced code', () => {
@@ -451,5 +464,78 @@ Term
 <pre><code>This is test.
 </code></pre></dd>
 </dl>`;
-  expect(result).toEqual(expected.trimLeft());
+  expect(result).toEqual(expected.trimStart());
+});
+
+test('regression: dd inside of blockquote', () => {
+  const result = parse(`
+> Term1
+> : Description 1.
+> : Description 2.
+>
+> Term2
+> : Description 1.
+> : Description 2.
+`);
+  const expected = `
+<blockquote>
+<dl>
+<dt>Term1</dt>
+<dd>Description 1.</dd>
+<dd>Description 2.</dd>
+<dt>Term2</dt>
+<dd>Description 1.</dd>
+<dd>Description 2.</dd>
+</dl>
+</blockquote>`;
+  expect(result).toEqual(expected.trimStart());
+});
+
+test('regression: dd inside of nested blockquote', () => {
+  const result = parse(`
+> > Term1
+> > : Description 1.
+> > : Description 2.
+`);
+  const expected = `
+<blockquote>
+<blockquote>
+<dl>
+<dt>Term1</dt>
+<dd>Description 1.</dd>
+<dd>Description 2.</dd>
+</dl>
+</blockquote>
+</blockquote>`;
+  expect(result).toEqual(expected.trimStart());
+});
+
+test('regression: dd-like stuff inside of blockquote', () => {
+  const result = parse(`
+test
+
+> : Description 1.
+`);
+  const expected = `
+<p>test</p>
+<blockquote>
+<p>: Description 1.</p>
+</blockquote>
+`;
+  expect(result).toEqual(expected.trimStart());
+});
+
+test('regression: dd-like stuff inside of nested blockquote', () => {
+  const result = parse(`
+> Term1
+> > : Description 1.
+`);
+  const expected = `
+<blockquote>
+<p>Term1</p>
+<blockquote>
+<p>Description 1.</p>
+</blockquote>
+</blockquote>`;
+  expect(result).toEqual(expected.trimStart());
 });
