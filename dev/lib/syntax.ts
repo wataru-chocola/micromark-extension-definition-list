@@ -33,6 +33,13 @@ interface TokenizeContextWithDefState extends TokenizeContext {
   } & Record<string, unknown>;
 }
 
+const ignorablePrefixTypes = new Set([
+  types.linePrefix,
+  types.blockQuotePrefix,
+  types.blockQuoteMarker,
+  types.blockQuotePrefixWhitespace,
+]);
+
 const defListConstruct: Construct = {
   name: 'defList',
   tokenize: tokenizeDefListStart,
@@ -70,6 +77,17 @@ function formatEvents(events: Event[] | undefined): [string, string, string][] |
 }
 
 function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Event[] {
+  /**
+   * Resolves all detList events
+   *
+   * @remarks
+   * For each defList events, this does:
+   * - create defListTerm event
+   * - create defListDescription event
+   *
+   * And then merge adjacent lists
+   *
+   */
   debug('resolveAll');
   debug('original events:');
   debug(formatEvents(events));
@@ -91,25 +109,24 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
     const event = events[index];
     if (event[0] === 'enter' && event[1].type === tokenTypes.defList) {
       dlStack.push(event[1]);
-    } else if (event[0] === 'exit' && event[1].type === tokenTypes.defList) {
-      if (
-        index < events.length - 2 &&
-        events[index + 1][0] === 'enter' &&
-        events[index + 1][1].type === tokenTypes.defList
-      ) {
-        event[1].end = Object.assign({}, events[index + 1][1].end);
-        splice(events, index, 2, []);
-        index -= 1;
-      } else if (
-        index < events.length - 4 &&
-        events[index + 1][1].type === types.linePrefix &&
-        events[index + 2][1].type === types.linePrefix &&
-        events[index + 3][0] === 'enter' &&
-        events[index + 3][1].type === tokenTypes.defList
-      ) {
-        event[1].end = Object.assign({}, events[index + 3][1].end);
-        splice(events, index, 4, []);
-        index -= 3;
+    }
+    if (event[0] === 'exit' && event[1].type === tokenTypes.defList) {
+      let defListFound = false;
+      let i = 1;
+      while (index + i < events.length) {
+        const forwardEvent = events[index + i];
+        if (forwardEvent[0] === 'enter' && forwardEvent[1].type === tokenTypes.defList) {
+          defListFound = true;
+          break;
+        } else if (!ignorablePrefixTypes.has(forwardEvent[1].type)) {
+          break;
+        }
+        i++;
+      }
+      if (defListFound) {
+        event[1].end = Object.assign({}, events[index + i][1].end);
+        splice(events, index, i + 1, []);
+        index -= i;
       } else {
         const token = dlStack.pop();
         assert(token != null, 'expect a token of balanced enter event');
@@ -126,6 +143,12 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
 }
 
 function resolveDefList(defList_start: number, events: Event[], context: TokenizeContext): number {
+  /**
+   * Create defListTerms and defListDescriptions
+   *
+   * @returns Index offset to the end of current defList
+   *
+   */
   let indexOffset = 0;
 
   let defListDescriptionToken: Token | undefined;
@@ -193,9 +216,16 @@ function resolveDefinitionTermTo(
   events: Event[],
   context: TokenizeContext,
 ): number {
+  /**
+   * Create defListTerm for current defList
+   *
+   * @returns Index offset added by new events
+   *
+   */
+
   let flowIndex: number | undefined;
   for (let i = defList_start - 1; i >= 0; i--) {
-    if (events[i][1].type === types.linePrefix) {
+    if (ignorablePrefixTypes.has(events[i][1].type)) {
       continue;
     }
     if (events[i][1].type === types.chunkFlow) {
@@ -320,6 +350,50 @@ function resolveDefinitionTermTo(
   return startIndex - defList_start;
 }
 
+function checkPossibleDefTerm(events: Event[]): boolean {
+  let index = events.length;
+  let termFlowStart: Event | undefined;
+  let flowEvents: Event[] | undefined;
+  while (index--) {
+    if (ignorablePrefixTypes.has(events[index][1].type)) {
+      continue;
+    }
+    if (events[index][1].type === types.chunkFlow) {
+      flowEvents ??= events[index][1]._tokenizer?.events;
+      termFlowStart = events[index];
+    } else {
+      break;
+    }
+  }
+
+  let blanklines = 0;
+  if (flowEvents != null && termFlowStart != null) {
+    let tmpIndex = flowEvents.length;
+    while (tmpIndex--) {
+      const flowEvent = flowEvents[tmpIndex];
+      const tmpToken = flowEvent[1];
+      if (tmpToken.start.offset < termFlowStart[1].start.offset) {
+        break;
+      }
+      if (flowEvent[0] === 'enter' && tmpToken.type === types.lineEndingBlank) {
+        if (blanklines >= 1) {
+          break;
+        }
+        blanklines++;
+      }
+      if (
+        tmpToken.type !== types.lineEnding &&
+        tmpToken.type !== types.linePrefix &&
+        tmpToken.type !== types.lineEndingBlank &&
+        tmpToken.type !== types.content
+      ) {
+        return tmpToken.type === types.paragraph || tmpToken.type === types.chunkContent;
+      }
+    }
+  }
+  return false;
+}
+
 function tokenizeDefListStart(
   this: TokenizeContextWithDefState,
   effects: Effects,
@@ -336,57 +410,13 @@ function tokenizeDefListStart(
   let initialSize =
     tail && tail[1].type === types.linePrefix ? tail[2].sliceSerialize(tail[1], true).length : 0;
 
-  if (self.parser.lazy[self.now().line]) {
-    // in the middle of blockquote or something
-    return nok;
-  }
-
-  // find possible term chunkFlow
-  let index = self.events.length;
-  let termFlowStart: Event | undefined;
-  let flowEvents: Event[] | undefined;
-  while (index--) {
-    if (self.events[index][1].type === types.chunkFlow) {
-      flowEvents ??= self.events[index][1]._tokenizer?.events;
-      termFlowStart = self.events[index];
-    } else {
-      break;
-    }
-  }
-
-  let paragraph = false;
-  let blanklines = 0;
-  if (flowEvents != null && termFlowStart != null) {
-    let tmpIndex = flowEvents.length;
-    while (tmpIndex--) {
-      const flowEvent = flowEvents[tmpIndex];
-      if (flowEvent[1].start.offset < termFlowStart[1].start.offset) {
-        break;
-      }
-      if (flowEvent[0] === 'enter' && flowEvent[1].type === types.lineEndingBlank) {
-        if (blanklines >= 1) {
-          break;
-        }
-        blanklines++;
-      }
-      if (
-        flowEvent[1].type !== types.lineEnding &&
-        flowEvent[1].type !== types.linePrefix &&
-        flowEvent[1].type !== types.lineEndingBlank &&
-        flowEvent[1].type !== types.content
-      ) {
-        paragraph = flowEvent[1].type === types.paragraph;
-        break;
-      }
-    }
-  }
-
   if (self.containerState!.type == null) {
-    if (self.interrupt || paragraph) {
-      // start defList only when definition term found.
+    // start defList only when definition term found.
+    if (checkPossibleDefTerm(self.events)) {
       effects.enter(tokenTypes.defList, { _container: true });
       self.containerState!.type = tokenTypes.defList;
     } else {
+      debug('nok');
       return nok;
     }
   }
@@ -394,7 +424,7 @@ function tokenizeDefListStart(
   return start;
 
   function start(code: Code): State | void {
-    debug('start: start' + String(code));
+    debug(`start: start (code: ${String(code)})`);
     if (code !== codes.colon) {
       return nok(code);
     }

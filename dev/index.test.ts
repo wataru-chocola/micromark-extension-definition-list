@@ -44,7 +44,7 @@ the family Rosaceae.</dd>
   expect(result).toEqual(expected.trimStart());
 });
 
-test('have one difinition associated with one term', () => {
+test('have one definition associated with one term', () => {
   const result = parse(`
 Apple
 :   Pomaceous fruit of plants of the genus Malus in 
@@ -176,11 +176,9 @@ test('definition before dd-like paragraph (2)', () => {
     the family Rosaceae.
 `);
   const expected = `
-<dl>
-<dt></dt>
-<dd>Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
-the family Rosaceae.</dd>
-</dl>`;
+<p>:   Pomaceous <a href="http://example.com/fruit">fruit</a> of plants of the genus Malus in
+the family Rosaceae.</p>
+`;
   expect(result).toEqual(expected.trimStart());
 });
 
@@ -534,8 +532,9 @@ test('regression: dd-like stuff inside of nested blockquote', () => {
 <blockquote>
 <p>Term1</p>
 <blockquote>
-<p>Description 1.</p>
+<p>: Description 1.</p>
 </blockquote>
-</blockquote>`;
+</blockquote>
+`;
   expect(result).toEqual(expected.trimStart());
 });
