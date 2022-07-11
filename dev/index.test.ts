@@ -360,19 +360,21 @@ test('defList cannot start without any term, but this IS defList', () => {
   expect(result).toEqual(expected.trimStart());
 });
 
-test('defList cannot start from lazy line', () => {
+test.skip('defList starting in lazy line of blockquote', () => {
   const result = parse(`
 > BlockQuote
-Not Term
+Term
 : Definition a
 `);
   const expected = `
 <blockquote>
-<p>BlockQuote
-Not Term
-: Definition a</p>
+<p>BlockQuote</p>
 </blockquote>
-`;
+<dl>
+<dt>Term
+</dt>
+<dd>Definition a</dd>
+</dl>`;
   expect(result).toEqual(expected.trimStart());
 });
 
