@@ -77,7 +77,8 @@ Term 3
 `);
   const expected = `
 <dl>
-<dt>Term 1</dt>
+<dt>Term 1
+</dt>
 <dt>Term 2</dt>
 <dd>Definition a</dd>
 <dt>Term 3</dt>
@@ -360,7 +361,7 @@ test('defList cannot start without any term, but this IS defList', () => {
   expect(result).toEqual(expected.trimStart());
 });
 
-test.skip('defList starting in lazy line of blockquote', () => {
+test('defList starting in lazy line of blockquote', () => {
   const result = parse(`
 > BlockQuote
 Term
@@ -368,11 +369,11 @@ Term
 `);
   const expected = `
 <blockquote>
-<p>BlockQuote</p>
+<p>BlockQuote
+</p>
 </blockquote>
 <dl>
-<dt>Term
-</dt>
+<dt>Term</dt>
 <dd>Definition a</dd>
 </dl>`;
   expect(result).toEqual(expected.trimStart());
@@ -462,7 +463,8 @@ Term
 <dt>Term</dt>
 <dd>
 <pre><code>This is test.
-</code></pre></dd>
+</code></pre>
+</dd>
 </dl>`;
   expect(result).toEqual(expected.trimStart());
 });

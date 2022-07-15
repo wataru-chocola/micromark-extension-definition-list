@@ -51,5 +51,5 @@ const output = micromark(markdown, {
 For development purpose, you can run tests with debug messages.
 
 ```console
-$ DEBUG="micromark-extension-definition-list:syntax" npm run test-dev
+$ DEBUG="micromark-extension-definition-list:*" npm run test-dev
 ```

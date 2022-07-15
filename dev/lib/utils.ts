@@ -1,9 +1,6 @@
 import type { Event } from 'micromark-util-types';
 
-export function formatEvents(events: Event[] | undefined): [string, string, string][] | undefined {
-  //export function formatEvents(
-  //  events: Event[] | undefined,
-  //): [string, string, any, any, string][] | undefined {
+export function formatEvents(events: Event[] | undefined): any | undefined {
   if (events == null) {
     return;
   }
@@ -14,7 +11,6 @@ export function formatEvents(events: Event[] | undefined): [string, string, stri
     } catch (e) {
       content = '<maybe incomplete token>';
     }
-    //return [x[0], x[1].type, x[1].previous, x[1].next, content];
     return [x[0], x[1].type, content];
   });
 }

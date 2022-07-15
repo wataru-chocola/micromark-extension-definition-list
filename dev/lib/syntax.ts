@@ -17,6 +17,7 @@ import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
 import { formatEvents } from './utils.js';
+import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken';
 import { splice } from 'micromark-util-chunked';
 import assert from 'assert';
 import Debug from 'debug';
@@ -140,7 +141,7 @@ function resolveDefList(defList_start: number, events: Event[], context: Tokeniz
   let defListDescriptionToken: Token | undefined;
   let expectFirstDescription = true;
   let index = defList_start + 1;
-  index += resolveDefinitionTermTo(defList_start, events, context);
+  index += resolveDefinitionTermTo(defList_start, events);
 
   while (index < events.length) {
     const event = events[index];
@@ -164,7 +165,9 @@ function resolveDefList(defList_start: number, events: Event[], context: Tokeniz
     if (event[0] === 'enter' && event[1].type === tokenTypes.defListDescriptionPrefix) {
       // mark loose definition description
       assert(index > 0, 'expect some events before defListDescription');
-      if (events[index - 1][1].type === types.chunkFlow) {
+      if (events[index - 1][1].type === types.lineEndingBlank) {
+        event[1]._loose = true;
+      } else if (events[index - 1][1].type === types.chunkFlow) {
         const flowEvents = events[index - 1][1]._tokenizer!.events;
         if (flowEvents[flowEvents.length - 1][1].type === types.lineEndingBlank) {
           event[1]._loose = true;
@@ -197,214 +200,191 @@ function resolveDefList(defList_start: number, events: Event[], context: Tokeniz
   }
 }
 
-type AnalyzedFlowToken = {
-  flowEvents: Event[];
-  contentEnterIndex: number;
-  contentExitIndex: number;
-  definitionIndex: number | undefined;
-  paraEnterIndex: number | undefined;
-  paraExitIndex: number | undefined;
-};
-function analyzeDefTermFlow(flowToken: Token): AnalyzedFlowToken {
-  const flowEvents = flowToken._tokenizer!.events;
-
-  // flow events are stacked like:
-  //
-  //   [enter, content]
-  //   [enter, definition] (optional)
-  //   [exit, definition] (optional)
-  //   [enter, paragraph]
-  //   ...
-  //   [exit, paragraph]
-  //   [exit, content]
-  //
-  let contentEnterIndex: number | undefined;
-  let contentExitIndex: number | undefined;
-  let definitionIndex: number | undefined;
-  let paraEnterIndex: number | undefined;
-  let paraExitIndex: number | undefined;
-  for (let i = flowEvents.length - 1; i >= 0; i--) {
-    const tmpEvent = flowEvents[i];
-    if (tmpEvent[0] === 'exit' && tmpEvent[1].type === types.content) {
-      contentExitIndex = i;
-    }
-    if (tmpEvent[0] === 'exit' && tmpEvent[1].type === types.paragraph) {
-      paraExitIndex = i;
-    }
-    if (tmpEvent[0] === 'enter' && tmpEvent[1].type === types.paragraph) {
-      paraEnterIndex = i;
-    }
-    if (!definitionIndex && tmpEvent[0] === 'exit' && tmpEvent[1].type === types.definition) {
-      definitionIndex = i;
-    }
-    if (tmpEvent[0] === 'enter' && tmpEvent[1].type === types.content) {
-      contentEnterIndex = i;
-      break;
-    }
-  }
-
-  assert(contentEnterIndex != null, 'expect a content to be found');
-  assert(contentExitIndex != null, 'expect a content to be found');
-  return {
-    flowEvents,
-    contentEnterIndex,
-    contentExitIndex,
-    definitionIndex,
-    paraEnterIndex,
-    paraExitIndex,
-  };
-}
-
-function modifyDefTermFlow(flowToken: Token, context: TokenizeContext) {
-  const flow = analyzeDefTermFlow(flowToken);
-  debug('original flow events:');
-  debug(formatEvents(flow.flowEvents));
-
-  if (flow.definitionIndex != null) {
-    splice(flow.flowEvents, flow.contentExitIndex, 1, []);
-  }
-  if (flow.paraEnterIndex != null && flow.paraExitIndex != null) {
-    splice(flow.flowEvents, flow.paraExitIndex, 1, []);
-    splice(flow.flowEvents, flow.paraEnterIndex, 1, []);
-  }
-  if (flow.definitionIndex != null) {
-    const contentToken = flow.flowEvents[flow.contentEnterIndex][1];
-    contentToken.end = Object.assign({}, flow.flowEvents[flow.definitionIndex][1].end);
-    splice(flow.flowEvents, flow.definitionIndex + 1, 0, [['exit', contentToken, context]]);
-  }
-
-  debug('modified flow events:');
-  debug(formatEvents(flow.flowEvents));
-}
-
-function resolveDefinitionTermTo(
-  defList_start: number,
+function createDefTermEvent(
   events: Event[],
-  context: TokenizeContext,
+  chunkFlowIndex: number,
+  defListStartIndex: number,
+  flagBlockQuote: boolean,
 ): number {
+  /**
+   * Insert defListTerm and chunkFlow subtokenized events
+   *
+   * @returns Index at which defList enter event should be placed
+   *
+   */
+
+  const flow = analyzeDefTermFlow(events[chunkFlowIndex][1]);
+  assert(
+    (flow.paraEnterIndex != null && flow.paraExitIndex != null) ||
+      (flow.paraEnterIndex == null && flow.paraExitIndex == null),
+  );
+
+  const context = events[chunkFlowIndex][2];
+  const lazyLines = events[chunkFlowIndex][2].parser.lazy;
+  let newDefListStartIndex = 0;
+  if (flow.paraEnterIndex != null && flow.paraExitIndex != null) {
+    const paraStart = flow.flowEvents[flow.paraEnterIndex][1].start;
+
+    let flowExitIndex: number | undefined;
+    for (let i = chunkFlowIndex; i >= 0; i--) {
+      if (events[i][1].type !== types.chunkFlow || events[i][1].start.offset < paraStart.offset) {
+        newDefListStartIndex = i + 1;
+        break;
+      }
+
+      assert(events[i][1].type === types.chunkFlow);
+      if (events[i][0] === 'exit' && flagBlockQuote && !lazyLines[events[i][1].start.line]) {
+        newDefListStartIndex = i + 1;
+        break;
+      }
+
+      if (events[i][0] === 'enter') {
+        assert(flowExitIndex != null, 'expect a flow index exit');
+        subtokenizeDefTerm(events, i, flowExitIndex);
+        flowExitIndex = undefined;
+      } else {
+        flowExitIndex = i;
+      }
+    }
+  } else {
+    // for some reason there's any paragraph, so create dummy term
+    newDefListStartIndex = defListStartIndex;
+    const defListEnterEvent = events[defListStartIndex];
+    const termToken = {
+      type: tokenTypes.defListTerm,
+      start: Object.assign({}, defListEnterEvent[1].start),
+      end: Object.assign({}, defListEnterEvent[1].start),
+    };
+    splice(events, newDefListStartIndex, 0, [
+      ['enter', termToken, context],
+      ['exit', termToken, context],
+    ]);
+  }
+  return newDefListStartIndex;
+}
+
+function resolveDefinitionTermTo(defListStartIndex: number, events: Event[]): number {
   /**
    * Create defListTerm for current defList
    *
    * @returns Index offset added by new events
    *
    */
-
   let flowIndex: number | undefined;
-  for (let i = defList_start - 1; i >= 0; i--) {
-    if (ignorablePrefixTypes.has(events[i][1].type)) {
+  let blockQuoteExit: Event | undefined;
+  let blockQuoteExitIndex: number | undefined;
+
+  for (let i = defListStartIndex - 1; i >= 0; i--) {
+    if (ignorablePrefixTypes.has(events[i][1].type)) continue;
+
+    if (
+      i === defListStartIndex - 1 &&
+      events[i][1].type === types.blockQuote &&
+      events[i][0] === 'exit'
+    ) {
+      blockQuoteExitIndex = i;
+      blockQuoteExit = events[i];
       continue;
     }
+
     if (events[i][1].type === types.chunkFlow) {
       flowIndex = i;
     }
     break;
   }
   assert(flowIndex !== undefined, 'expected a chunkFlow found');
-  const flowToken = events[flowIndex][1];
-  const flow = analyzeDefTermFlow(flowToken);
 
   // temporarily remove defList enter
-  const defListEnterEvent = events[defList_start];
-  splice(events, defList_start, 1, []);
+  const defListEnterEvent = events[defListStartIndex];
+  splice(events, defListStartIndex, 1, []);
+
+  // temporarily remove blockQuote exit
+  if (blockQuoteExitIndex != null) {
+    splice(events, blockQuoteExitIndex, 1, []);
+  }
 
   // create and insert defListTerm events
-  assert(
-    (flow.paraEnterIndex != null && flow.paraExitIndex != null) ||
-      (flow.paraEnterIndex == null && flow.paraExitIndex == null),
+  let newDefListStartIndex = createDefTermEvent(
+    events,
+    flowIndex,
+    defListStartIndex,
+    blockQuoteExit != null,
   );
-  let startIndex = 0;
-  if (flow.paraEnterIndex != null && flow.paraExitIndex != null) {
-    const paraStart = flow.flowEvents[flow.paraEnterIndex][1].start;
-    const paraEnd = flow.flowEvents[flow.paraExitIndex][1].end;
 
-    let flowIndex_exit: number | undefined;
-    for (let i = flowIndex; i >= 0; i--) {
-      if (events[i][1].start.offset > paraEnd.offset) {
-        continue;
-      }
-      if (events[i][1].type !== types.chunkFlow || events[i][1].start.offset < paraStart.offset) {
-        startIndex = i + 1;
-        break;
-      }
-
-      if (events[i][0] === 'enter') {
-        assert(flowIndex_exit != null, 'expect a flow index exit');
-        events[i][1].type = types.chunkText;
-
-        // modify flow events
-        modifyDefTermFlow(events[i][1], context);
-
-        // create defListTerm events
-        const termToken = {
-          type: tokenTypes.defListTerm,
-          start: Object.assign({}, events[i][1].start),
-          end: Object.assign({}, events[i][1].end),
-        };
-        splice(events, flowIndex_exit + 1, 0, [['exit', termToken, context]]);
-        splice(events, i, 0, [['enter', termToken, context]]);
-
-        flowIndex_exit = undefined;
-      } else {
-        flowIndex_exit = i;
-      }
-    }
-  } else {
-    // for some reason there's any paragraph, so create dummy term
-    startIndex = defList_start;
-    const termToken = {
-      type: tokenTypes.defListTerm,
-      start: Object.assign({}, defListEnterEvent[1].start),
-      end: Object.assign({}, defListEnterEvent[1].start),
-    };
-    splice(events, startIndex, 0, [
-      ['enter', termToken, context],
-      ['exit', termToken, context],
-    ]);
+  // put blockQuote exit
+  if (blockQuoteExitIndex != null) {
+    blockQuoteExit![1].end = Object.assign({}, events[newDefListStartIndex - 1][1].end);
+    splice(events, newDefListStartIndex, 0, [blockQuoteExit]);
+    newDefListStartIndex += 1;
   }
 
   // insert defList enter at right position
-  defListEnterEvent[1].start = Object.assign({}, events[startIndex][1].start);
-  splice(events, startIndex, 0, [defListEnterEvent]);
+  defListEnterEvent[1].start = Object.assign({}, events[newDefListStartIndex][1].start);
+  splice(events, newDefListStartIndex, 0, [defListEnterEvent]);
 
-  return startIndex - defList_start;
+  return newDefListStartIndex - defListStartIndex;
 }
 
 function checkPossibleDefTerm(events: Event[]): boolean {
-  let index = events.length;
+  if (events.length <= 1) return false;
+
+  const lastEvent = events[events.length - 1];
+  const lazyLines = lastEvent[2].parser.lazy;
+  let flagBlockQuote = false;
+
   let termFlowStart: Event | undefined;
   let flowEvents: Event[] | undefined;
-  while (index--) {
-    if (ignorablePrefixTypes.has(events[index][1].type)) {
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (ignorablePrefixTypes.has(events[i][1].type)) {
       continue;
     }
-    if (events[index][1].type === types.chunkFlow) {
-      flowEvents ??= events[index][1]._tokenizer?.events;
-      termFlowStart = events[index];
+    if (
+      i === events.length - 1 &&
+      events[i][1].type === types.blockQuote &&
+      events[i][0] === 'exit'
+    ) {
+      /**
+       * something like:
+       *
+       * ```
+       * > blockquote
+       * term
+       * : description
+       * ```
+       */
+      flagBlockQuote = true;
+      continue;
+    }
+
+    if (events[i][1].type === types.chunkFlow) {
+      flowEvents ??= events[i][1]._tokenizer?.events;
+      termFlowStart = events[i];
     } else {
       break;
     }
   }
 
-  let blanklines = 0;
   if (flowEvents != null && termFlowStart != null) {
-    let tmpIndex = flowEvents.length;
-    while (tmpIndex--) {
-      const flowEvent = flowEvents[tmpIndex];
+    let blanklines = 0;
+    for (let i = flowEvents.length - 1; i >= 0; i--) {
+      const flowEvent = flowEvents[i];
       const tmpToken = flowEvent[1];
       if (tmpToken.start.offset < termFlowStart[1].start.offset) break;
-
       if (flowEvent[0] === 'enter' && tmpToken.type === types.lineEndingBlank) {
-        if (blanklines >= 1) {
-          break;
-        }
+        if (blanklines >= 1) break;
         blanklines++;
       }
+
       if (
         tmpToken.type !== types.lineEnding &&
         tmpToken.type !== types.linePrefix &&
         tmpToken.type !== types.lineEndingBlank &&
         tmpToken.type !== types.content
       ) {
+        if (flagBlockQuote && !lazyLines[tmpToken.end.line]) {
+          return false;
+        }
+
         return tmpToken.type === types.paragraph || tmpToken.type === types.chunkContent;
       }
     }
