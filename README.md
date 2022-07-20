@@ -45,11 +45,19 @@ const output = micromark(markdown, {
 });
 ```
 
+## Limitation
+
+**This plugin might not work with other 3rd party plugins using `document` level tokenizer**.
+
+The tokenizer of this plugin starts at the start of a definition description, not a definition term.
+Definition terms have to be resolved from other events.
+To do so, this plugin uses some knowledge about built-in `document` token types.
+
 
 ## Test in development
 
 For development purpose, you can run tests with debug messages.
 
 ```console
-$ DEBUG="micromark-extension-definition-list:syntax" npm run test-dev
+$ DEBUG="micromark-extension-definition-list:*" npm run test-dev
 ```
