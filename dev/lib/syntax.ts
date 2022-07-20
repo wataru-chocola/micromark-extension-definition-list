@@ -17,7 +17,7 @@ import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
 import { formatEvents } from './utils.js';
-import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken';
+import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken.js';
 import { splice } from 'micromark-util-chunked';
 import assert from 'assert';
 import Debug from 'debug';
