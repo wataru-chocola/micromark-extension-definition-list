@@ -1,8 +1,8 @@
 # ignore build result
 /index.js
-/index.test.js
-/index.d.ts
-/index.test.d.ts
+/*.test.js
+/*.d.ts
+/coreTestcases.*
 /dev/**/*.js
 /dev/**/*.d.ts
 /lib
