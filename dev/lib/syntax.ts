@@ -5,7 +5,6 @@ import type {
   Code,
   Event,
   Effects,
-  Point,
   TokenizeContext,
   Token,
 } from 'micromark-util-types';
@@ -16,7 +15,7 @@ import { constants } from 'micromark-util-symbol/constants.js';
 import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
-import { formatEvents } from './utils.js';
+import { formatEvents, code2Str } from './utils.js';
 import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken.js';
 import { splice } from 'micromark-util-chunked';
 import assert from 'assert';
@@ -326,6 +325,8 @@ function resolveDefinitionTermTo(defListStartIndex: number, events: Event[]): nu
 }
 
 function checkPossibleDefTerm(events: Event[]): boolean {
+  debug('checkPossibleDefTerm');
+  debug(formatEvents(events));
   if (events.length <= 1) return false;
 
   const lastEvent = events[events.length - 1];
@@ -364,6 +365,7 @@ function checkPossibleDefTerm(events: Event[]): boolean {
     }
   }
 
+  debug(formatEvents(flowEvents));
   if (flowEvents != null && termFlowStart != null) {
     let blanklines = 0;
     for (let i = flowEvents.length - 1; i >= 0; i--) {
@@ -385,7 +387,11 @@ function checkPossibleDefTerm(events: Event[]): boolean {
           return false;
         }
 
-        return tmpToken.type === types.paragraph || tmpToken.type === types.chunkContent;
+        return (
+          tmpToken.type === types.paragraph ||
+          tmpToken.type === types.chunkContent ||
+          tmpToken.type === 'tableHead'
+        );
       }
     }
   }
@@ -408,6 +414,9 @@ function tokenizeDefListStart(
   let initialSize =
     tail && tail[1].type === types.linePrefix ? tail[2].sliceSerialize(tail[1], true).length : 0;
 
+  debug(`interrupt: ${self.interrupt}`);
+  debug('lazy: %o', self.parser.lazy);
+
   if (self.containerState!.type == null) {
     // start defList only when definition term found.
     if (checkPossibleDefTerm(self.events)) {
@@ -422,7 +431,7 @@ function tokenizeDefListStart(
   return start;
 
   function start(code: Code): State | void {
-    debug(`start: start (code: ${String(code)})`);
+    debug(`defList: start (code: '${code2Str(code)}')`);
     if (code !== codes.colon) {
       return nok(code);
     }
@@ -443,14 +452,14 @@ function tokenizeDefListStart(
   }
 
   function onBlank(code: Code): State | void {
-    debug('start: on blank');
+    debug('defList: on blank');
     self.containerState!.initialBlankLine = true;
     initialSize++;
     return prefixEnd(code);
   }
 
   function otherPrefix(code: Code): State | void {
-    debug('start: other prefix');
+    debug('defList: other prefix');
     if (markdownSpace(code)) {
       effects.enter(tokenTypes.defListDescriptionPrefixWhitespace);
       effects.consume(code);
@@ -461,7 +470,7 @@ function tokenizeDefListStart(
   }
 
   function prefixEnd(code: Code): State | void {
-    debug('start: prefix end');
+    debug('defList: prefix end');
     self.containerState!.size =
       initialSize +
       self.sliceSerialize(effects.exit(tokenTypes.defListDescriptionPrefix), true).length;
