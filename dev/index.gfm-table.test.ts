@@ -103,6 +103,32 @@ bbb
 c2</p>
 `,
   },
+
+  {
+    title: 'workaround: dd-like line breaks table',
+    markdown: `aaa
+| - |
+bbb
+\\: c1
+`,
+    html: `
+<table>
+<thead>
+<tr>
+<th>aaa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bbb</td>
+</tr>
+<tr>
+<td>: c1</td>
+</tr>
+</tbody>
+</table>
+`,
+  },
 ];
 
 const parse = (md: string) =>

@@ -4,6 +4,15 @@
 
 [micromark](https://github.com/micromark/micromark) extension to support definition lists.
 
+
+## Compatibility Note
+
+**This extension  might not work with other extensions**.
+
+The plugin's tokenizer needs knowledge about token types that other tokenizers generate to create defList.
+If you find any extensions not working with this, please [create issue](https://github.com/wataru-chocola/micromark-extension-definition-list/issues/new/choose).
+
+
 ## Feature
 
 * fully support [Definition Lists Syntax of php-markdown]
@@ -45,13 +54,57 @@ const output = micromark(markdown, {
 });
 ```
 
-## Limitation
 
-**This plugin might not work with other 3rd party plugins using `document` level tokenizer**.
+## Known Issues
 
-The tokenizer of this plugin starts at the start of a definition description, not a definition term.
-Definition terms have to be resolved from other events.
-To do so, this plugin uses some knowledge about built-in `document` token types.
+### dd-like line stops parsing gfm-table
+
+Input:
+
+```markdown
+head
+| - |
+row1
+: row2
+```
+
+Expected HTML:
+
+```html
+<table>
+  <thead>
+    <tr><th>head</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>row1</td></tr>
+    <tr><td>: row2</td></tr>
+  </tbody>
+</table>
+```
+
+Actual behavior:
+
+```html
+<table>
+  <thead>
+    <tr><th>head</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>row1</td></tr>
+  </tbody>
+</table>
+<p>: row2</p>
+```
+
+Workaround: Escape colon at the start of line
+
+```markdown
+head
+| - |
+row1
+\: row2
+```
+
 
 
 ## Test in development
