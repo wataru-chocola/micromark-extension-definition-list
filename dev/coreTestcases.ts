@@ -75,8 +75,7 @@ Term 3
 :   Definition b
 `,
     html: `<dl>
-<dt>Term 1
-</dt>
+<dt>Term 1</dt>
 <dt>Term 2</dt>
 <dd>Definition a</dd>
 <dt>Term 3</dt>
@@ -379,6 +378,34 @@ with countinous line.</dd>
     html: `<pre><code>: Definition
 </code></pre>
 `,
+  },
+
+  {
+    title: 'single term starting with whitespace',
+    markdown: `
+ NotTerm1
+: NotDefinition a
+`,
+    html: `
+<dl>
+<dt>NotTerm1</dt>
+<dd>NotDefinition a</dd>
+</dl>`,
+  },
+
+  {
+    title: 'multiple terms starting with whitespace',
+    markdown: `
+ Term1
+ Term2
+: Definition a
+`,
+    html: `
+<dl>
+<dt>Term1</dt>
+<dt> Term2</dt>
+<dd>Definition a</dd>
+</dl>`,
   },
 
   {

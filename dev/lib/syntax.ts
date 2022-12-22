@@ -15,7 +15,7 @@ import { constants } from 'micromark-util-symbol/constants.js';
 import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
-import { formatEvents, code2Str } from './utils.js';
+import { formatEvents, formatEvent, code2Str } from './utils.js';
 import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken.js';
 import { splice } from 'micromark-util-chunked';
 import assert from 'assert';
@@ -211,53 +211,55 @@ function createDefTermEvent(
    * @returns Index at which defList enter event should be placed
    *
    */
+  debug('createDefTermEvent with %o', formatEvent(events[chunkFlowIndex]));
+  const context = events[chunkFlowIndex][2];
 
   const flow = analyzeDefTermFlow(events[chunkFlowIndex][1]);
-  assert(
-    (flow.paraEnterIndex != null && flow.paraExitIndex != null) ||
-      (flow.paraEnterIndex == null && flow.paraExitIndex == null),
-  );
+  const paragraphInfo = flow.paragraph;
 
-  const context = events[chunkFlowIndex][2];
-  const lazyLines = events[chunkFlowIndex][2].parser.lazy;
-  let newDefListStartIndex = 0;
-  if (flow.paraEnterIndex != null && flow.paraExitIndex != null) {
-    const paraStart = flow.flowEvents[flow.paraEnterIndex][1].start;
-
-    let flowExitIndex: number | undefined;
-    for (let i = chunkFlowIndex; i >= 0; i--) {
-      if (events[i][1].type !== types.chunkFlow || events[i][1].start.offset < paraStart.offset) {
-        newDefListStartIndex = i + 1;
-        break;
-      }
-
-      assert(events[i][1].type === types.chunkFlow);
-      if (events[i][0] === 'exit' && flagBlockQuote && !lazyLines[events[i][1].start.line]) {
-        newDefListStartIndex = i + 1;
-        break;
-      }
-
-      if (events[i][0] === 'enter') {
-        assert(flowExitIndex != null, 'expect a flow index exit');
-        subtokenizeDefTerm(events, i, flowExitIndex);
-        flowExitIndex = undefined;
-      } else {
-        flowExitIndex = i;
-      }
-    }
-  } else {
-    // for some reason there's any paragraph, so create dummy term
-    newDefListStartIndex = defListStartIndex;
+  if (paragraphInfo == null) {
+    // for some reason there's no paragraph, so create dummy term
     const defListEnterEvent = events[defListStartIndex];
     const termToken = {
       type: tokenTypes.defListTerm,
       start: Object.assign({}, defListEnterEvent[1].start),
       end: Object.assign({}, defListEnterEvent[1].start),
     };
-    splice(events, newDefListStartIndex, 0, [
+    splice(events, defListStartIndex, 0, [
       ['enter', termToken, context],
       ['exit', termToken, context],
     ]);
+    return defListStartIndex;
+  }
+
+  const lazyLines = events[chunkFlowIndex][2].parser.lazy;
+
+  let newDefListStartIndex = 0;
+  let flowExitIndex: number | undefined;
+  for (let i = chunkFlowIndex; i >= 0; i--) {
+    const event = events[i];
+    if (event[1].type !== types.chunkFlow) {
+      newDefListStartIndex = i + 1;
+      break;
+    }
+
+    assert(event[1].type === types.chunkFlow);
+    if (event[1].start.offset < paragraphInfo.startOffset) {
+      newDefListStartIndex = i + 1;
+      break;
+    }
+
+    if (event[0] === 'exit') {
+      if (flagBlockQuote && !lazyLines[event[1].start.line]) {
+        newDefListStartIndex = i + 1;
+        break;
+      }
+      flowExitIndex = i;
+    } else {
+      assert(flowExitIndex != null, 'expect a flow index exit');
+      subtokenizeDefTerm(events, i, flowExitIndex);
+      flowExitIndex = undefined;
+    }
   }
   return newDefListStartIndex;
 }
@@ -336,14 +338,11 @@ function checkPossibleDefTerm(events: Event[]): boolean {
   let termFlowStart: Event | undefined;
   let flowEvents: Event[] | undefined;
   for (let i = events.length - 1; i >= 0; i--) {
-    if (ignorablePrefixTypes.has(events[i][1].type)) {
+    const event = events[i];
+    if (ignorablePrefixTypes.has(event[1].type)) {
       continue;
     }
-    if (
-      i === events.length - 1 &&
-      events[i][1].type === types.blockQuote &&
-      events[i][0] === 'exit'
-    ) {
+    if (i === events.length - 1 && event[1].type === types.blockQuote && event[0] === 'exit') {
       /**
        * something like:
        *
@@ -357,9 +356,11 @@ function checkPossibleDefTerm(events: Event[]): boolean {
       continue;
     }
 
-    if (events[i][1].type === types.chunkFlow) {
-      flowEvents ??= events[i][1]._tokenizer?.events;
-      termFlowStart = events[i];
+    if (event[1].type === types.chunkFlow) {
+      if (event[0] === 'enter') {
+        flowEvents ??= event[1]._tokenizer?.events;
+        termFlowStart = event;
+      }
     } else {
       break;
     }

@@ -17,6 +17,8 @@ const debug = Debug('micromark-extension-definition-list:defTermFlowToken');
  * Such chunkFlow tokens have subEvents, stacked like:
  *
  *   (... leading line breaks)
+ *   [enter, linePrefix] (optional)
+ *   [exit, linePrefix] (optional)
  *   [enter, content]
  *   [enter, definition] (optional)
  *   [exit, definition] (optional)
@@ -31,32 +33,62 @@ const debug = Debug('micromark-extension-definition-list:defTermFlowToken');
  *
  */
 
+type ParagraphInfo = {
+  enterIndex: number;
+  exitIndex: number;
+  startOffset: number;
+};
 export type AnalyzedFlowToken = {
   flowEvents: Event[];
-  paraEnterIndex: number | undefined;
-  paraExitIndex: number | undefined;
+  paragraph?: ParagraphInfo;
 };
 export function analyzeDefTermFlow(flowToken: Token): AnalyzedFlowToken {
   const flowEvents = flowToken._tokenizer!.events;
+  debug('analyzeDefTermFlow');
+  debug(formatEvents(flowEvents));
 
   let paraEnterIndex: number | undefined;
   let paraExitIndex: number | undefined;
+  let paraStartOffset: number | undefined;
   for (let i = flowEvents.length - 1; i >= 0; i--) {
     const tmpEvent = flowEvents[i];
     if (tmpEvent[1].type === types.paragraph) {
       if (tmpEvent[0] === 'exit') paraExitIndex = i;
       else {
         paraEnterIndex = i;
+        paraStartOffset = tmpEvent[1].start.offset;
+        for (let j = i - 1; j >= 0; j--) {
+          const e = flowEvents[j];
+          if (e[1].type === types.content) {
+            continue;
+          }
+          if (e[1].type === types.linePrefix) {
+            paraStartOffset = e[1].start.offset;
+            break;
+          }
+          break;
+        }
         break;
       }
     }
   }
 
-  return {
-    flowEvents,
-    paraEnterIndex,
-    paraExitIndex,
-  };
+  assert(
+    (paraEnterIndex != null && paraExitIndex != null && paraStartOffset != null) ||
+      (paraEnterIndex == null && paraExitIndex == null),
+  );
+  if (paraEnterIndex != null && paraExitIndex != null && paraStartOffset != null) {
+    return {
+      flowEvents,
+      paragraph: {
+        enterIndex: paraEnterIndex,
+        exitIndex: paraExitIndex,
+        startOffset: paraStartOffset,
+      },
+    };
+  } else {
+    return { flowEvents };
+  }
 }
 
 function getSubtokensForDefTerm(termFlowToken: Token) {
@@ -190,20 +222,24 @@ export function subtokenizeDefTerm(events: Event[], flowEnterIndex: number, flow
   const subtokens = getSubtokensForDefTerm(termFlowToken);
 
   // subtokenize chunkFlow event with childEvents
-  const termToken = {
-    type: tokenTypes.defListTerm,
-    start: Object.assign({}, termFlowToken.start),
-    end: Object.assign({}, termFlowToken.end),
-  };
   const context = events[flowExitIndex][2];
   const childEvents: Event[] = [];
-  childEvents.push(...subtokens.leadingChildEvents);
-  if (subtokens.termChildEvents.length >= 1) {
+  const numOfChildren = subtokens.termChildEvents.length;
+  if (numOfChildren > 0) {
+    const termToken = {
+      type: tokenTypes.defListTerm,
+      start: Object.assign({}, termFlowToken.start),
+      end: Object.assign({}, termFlowToken.end),
+    };
     childEvents.push(['enter', termToken, context]);
+    childEvents.push(...subtokens.leadingChildEvents);
     childEvents.push(...subtokens.termChildEvents);
+    childEvents.push(...subtokens.trailingChildEvents);
     childEvents.push(['exit', termToken, context]);
+  } else {
+    childEvents.push(...subtokens.leadingChildEvents);
+    childEvents.push(...subtokens.trailingChildEvents);
   }
-  childEvents.push(...subtokens.trailingChildEvents);
 
   splice(events, flowExitIndex, 1, []);
   splice(events, flowEnterIndex, 1, childEvents);
