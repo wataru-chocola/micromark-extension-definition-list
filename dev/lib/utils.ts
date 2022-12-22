@@ -1,18 +1,20 @@
 import type { Event, Code } from 'micromark-util-types';
 
+export function formatEvent(event: Event): [string, string, string] {
+  let content = '';
+  try {
+    content = event[2].sliceSerialize(event[1], true);
+  } catch (e) {
+    content = '<maybe incomplete token>';
+  }
+  return [event[0], event[1].type, content];
+}
+
 export function formatEvents(events: Event[] | undefined): any | undefined {
   if (events == null) {
     return;
   }
-  return events.map((x) => {
-    let content = '';
-    try {
-      content = x[2].sliceSerialize(x[1], true);
-    } catch (e) {
-      content = '<maybe incomplete token>';
-    }
-    return [x[0], x[1].type, content];
-  });
+  return events.map((x) => formatEvent(x));
 }
 
 export function code2Str(code: Code): string {

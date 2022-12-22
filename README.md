@@ -112,5 +112,5 @@ row1
 For development purpose, you can run tests with debug messages.
 
 ```console
-$ DEBUG="micromark-extension-definition-list:*" npm run test-dev
+$ DEBUG="micromark-extension-definition-list:*" npm run test-dev -- -t <title_pattern>
 ```
