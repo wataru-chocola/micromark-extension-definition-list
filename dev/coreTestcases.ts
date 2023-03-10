@@ -511,12 +511,12 @@ export const coreTestCases: TestCases = [
   },
 
   {
-    title: 'regression: blankline followed by fenced code',
+    title: 'regression: fenced code',
     markdown: `
     Term
-    :
-        \`\`\`
+    :   \`\`\`
         This is test.
+        And next line.
         \`\`\`
     `,
     html: `
@@ -524,6 +524,27 @@ export const coreTestCases: TestCases = [
     <dt>Term</dt>
     <dd>
     <pre><code>This is test.
+    And next line.
+    </code></pre></dd>
+    </dl>`,
+  },
+
+  {
+    title: 'regression: blankline followed by fenced code',
+    markdown: `
+    Term
+    :
+        \`\`\`
+        This is test.
+        And next line.
+        \`\`\`
+    `,
+    html: `
+    <dl>
+    <dt>Term</dt>
+    <dd>
+    <pre><code>This is test.
+    And next line.
     </code></pre></dd>
     </dl>`,
   },
