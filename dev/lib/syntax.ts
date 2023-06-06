@@ -6,7 +6,9 @@ import type {
   Event,
   Effects,
   TokenizeContext,
+  ContainerState,
   Token,
+  TokenType,
 } from 'micromark-util-types';
 import { codes } from 'micromark-util-symbol/codes';
 import { types } from 'micromark-util-symbol/types';
@@ -23,18 +25,15 @@ import Debug from 'debug';
 
 const debug = Debug('micromark-extension-definition-list:syntax');
 
-interface TokenizeContextWithDefState extends TokenizeContext {
-  containerState?: {
-    _closeFlow?: boolean;
-    size?: number;
-    type?: string;
-    initialBlankLine?: boolean;
-    furtherBlankLines?: boolean;
-    lastBlankLinke?: boolean;
-  } & Record<string, unknown>;
+interface ExtendedContainerState extends ContainerState {
+  lastBlankLine?: boolean;
 }
 
-const ignorablePrefixTypes = new Set([
+interface TokenizeContextWithDefState extends TokenizeContext {
+  containerState?: ExtendedContainerState;
+}
+
+const ignorablePrefixTypes: Set<string> = new Set([
   types.linePrefix,
   types.blockQuotePrefix,
   types.blockQuoteMarker,
@@ -391,7 +390,8 @@ function checkPossibleDefTerm(events: Event[]): boolean {
         return (
           tmpToken.type === types.paragraph ||
           tmpToken.type === types.chunkContent ||
-          tmpToken.type === 'tableHead'
+          tmpToken.type === 'tableHead' ||
+          tmpToken.type === 'tableRow'
         );
       }
     }
@@ -440,7 +440,7 @@ function tokenizeDefListStart(
     effects.enter(tokenTypes.defListDescriptionPrefix, {
       _loose: self.containerState?.lastBlankLine,
     });
-    self.containerState!.lastBlankLinke = undefined;
+    self.containerState!.lastBlankLine = undefined;
     effects.enter(tokenTypes.defListDescriptionMarker);
     effects.consume(code);
     effects.exit(tokenTypes.defListDescriptionMarker);
@@ -522,7 +522,10 @@ function tokenizeDefListContinuation(
       effects,
       effects.attempt(defListConstruct, ok, nok),
       types.linePrefix,
-      self.parser.constructs.disable.null.includes('codeIndented') ? undefined : constants.tabSize,
+      self.parser.constructs.disable.null != null &&
+        self.parser.constructs.disable.null.includes('codeIndented')
+        ? undefined
+        : constants.tabSize,
     )(code);
   }
 }
@@ -558,7 +561,8 @@ function tokenizeDefListDescriptionPrefixWhitespace(
     effects,
     afterPrefix,
     tokenTypes.defListDescriptionPrefixWhitespace,
-    self.parser.constructs.disable.null.includes('codeIndented')
+    self.parser.constructs.disable.null != null &&
+      self.parser.constructs.disable.null.includes('codeIndented')
       ? undefined
       : constants.tabSize + 1,
   );
