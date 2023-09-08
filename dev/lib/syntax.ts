@@ -8,7 +8,6 @@ import type {
   TokenizeContext,
   ContainerState,
   Token,
-  TokenType,
 } from 'micromark-util-types';
 import { codes } from 'micromark-util-symbol/codes';
 import { types } from 'micromark-util-symbol/types';
@@ -33,7 +32,7 @@ interface TokenizeContextWithDefState extends TokenizeContext {
   containerState?: ExtendedContainerState;
 }
 
-const ignorablePrefixTypes: Set<string> = new Set([
+const ignorablePrefixTypes = new Set<string>([
   types.linePrefix,
   types.blockQuotePrefix,
   types.blockQuoteMarker,
@@ -418,11 +417,11 @@ function tokenizeDefListStart(
   debug(`interrupt: ${self.interrupt}`);
   debug('lazy: %o', self.parser.lazy);
 
-  if (self.containerState!.type == null) {
+  if (self.containerState.type == null) {
     // start defList only when definition term found.
     if (checkPossibleDefTerm(self.events)) {
       effects.enter(tokenTypes.defList, { _container: true });
-      self.containerState!.type = tokenTypes.defList;
+      self.containerState.type = tokenTypes.defList;
     } else {
       debug('nok');
       return nok;
@@ -493,7 +492,7 @@ function tokenizeDefListContinuation(
   function onBlank(code: Code): State | void {
     debug('continuous: on blank');
     self.containerState!.furtherBlankLines =
-      self.containerState!.furtherBlankLines || self.containerState!.initialBlankLine;
+      self.containerState!.furtherBlankLines ?? self.containerState!.initialBlankLine;
     self.containerState!.lastBlankLine = true;
 
     return factorySpace(effects, ok, types.linePrefix, self.containerState!.size! + 1)(code);
@@ -501,7 +500,7 @@ function tokenizeDefListContinuation(
 
   function notBlank(code: Code): State | void {
     debug('continuous: not blank');
-    if (self.containerState!.furtherBlankLines || !markdownSpace(code)) {
+    if (self.containerState!.furtherBlankLines ?? !markdownSpace(code)) {
       self.containerState!.furtherBlankLines = undefined;
       self.containerState!.initialBlankLine = undefined;
       return notInCurrentItem(code);

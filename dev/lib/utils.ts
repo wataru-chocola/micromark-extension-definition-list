@@ -1,6 +1,8 @@
 import type { Event, Code } from 'micromark-util-types';
 
-export function formatEvent(event: Event): [string, string, string] {
+type FormattedEvent = [string, string, string];
+
+export function formatEvent(event: Event): FormattedEvent {
   let content = '';
   try {
     content = event[2].sliceSerialize(event[1], true);
@@ -10,7 +12,7 @@ export function formatEvent(event: Event): [string, string, string] {
   return [event[0], event[1].type, content];
 }
 
-export function formatEvents(events: Event[] | undefined): any | undefined {
+export function formatEvents(events: Event[] | undefined): FormattedEvent[] | undefined {
   if (events == null) {
     return;
   }
