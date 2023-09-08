@@ -214,7 +214,7 @@ export function subtokenizeDefTerm(events: Event[], flowEnterIndex: number, flow
 
   // unlink
   if (termFlowToken.previous != null) {
-    termFlowToken.previous!.next = undefined;
+    termFlowToken.previous.next = undefined;
     termFlowToken.previous = undefined;
   }
 

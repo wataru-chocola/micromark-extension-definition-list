@@ -15,7 +15,7 @@ export const defListHtml = {
     [tokenTypes.defListDescription](this: CompileContext, token: Token): void {
       this.lineEndingIfNeeded();
       this.tag('<dd>');
-      (this.getData('tightStack') as boolean[]).push(!token._loose);
+      this.getData('tightStack').push(!token._loose);
     },
   },
   exit: {
@@ -28,7 +28,7 @@ export const defListHtml = {
       this.setData('slurpOneLineEnding');
     },
     [tokenTypes.defListDescription](this: CompileContext): void {
-      (this.getData('tightStack') as boolean[]).pop();
+      this.getData('tightStack').pop();
       this.tag('</dd>');
     },
   },
