@@ -137,7 +137,10 @@ const tblTestCases: TestCases = [
 ];
 
 const parse = (md: string) =>
-  micromark(md, { extensions: [gfmTable, defList], htmlExtensions: [gfmTableHtml, defListHtml] });
+  micromark(md, {
+    extensions: [gfmTable(), defList],
+    htmlExtensions: [gfmTableHtml(), defListHtml],
+  });
 
 test.each([...coreTestCases, ...tblTestCases])('with gfm-table: $title', ({ markdown, html }) => {
   const result = parse(dedent(markdown));

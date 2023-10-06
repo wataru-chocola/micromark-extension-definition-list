@@ -1,5 +1,5 @@
 import type { Event, Token } from 'micromark-util-types';
-import { types } from 'micromark-util-symbol/types';
+import { types } from 'micromark-util-symbol';
 import { splice } from 'micromark-util-chunked';
 
 import { tokenTypes } from './types.js';
