@@ -44,14 +44,12 @@
   "devDependencies": {
     "@types/assert": "^1.5.7",
     "@types/debug": "^4.1.9",
-    "@types/jest": "29.5.4",
     "@typescript-eslint/eslint-plugin": "6.6.0",
     "@typescript-eslint/parser": "6.6.0",
     "debug": "4.3.4",
     "eslint": "8.48.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-import": "2.28.1",
-    "jest": "29.6.4",
     "micromark": "4.0.0",
     "micromark-build": "2.0.2",
     "micromark-extension-gfm": "3.0.0",
@@ -59,10 +57,8 @@
     "npm-check-updates": "^16.14.5",
     "prettier": "3.0.3",
     "rimraf": "5.0.1",
-    "typescript": "5.1.3"
-  },
-  "peerDependencies": {
-    "micromark": "^4.0.0"
+    "typescript": "5.1.3",
+    "vitest": "^0.34.6"
   },
   "keywords": [
     "micromark",
@@ -72,8 +68,8 @@
     "format": "prettier --write \"./dev/**/*.{js,ts,json}\"",
     "lint": "eslint ./dev/",
     "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
-    "test": "npm run build && NODE_OPTIONS=--experimental-vm-modules jest --testPathIgnorePatterns=\"/node_modules/|/dev/\"",
-    "test-dev": "tsc && NODE_OPTIONS=\"--experimental-vm-modules -C development\" jest \"dev/.*\\.test\\.js\"",
+    "test": "npm run build && vitest run --config ./vitest.not-dev.config.ts .js",
+    "test-dev": "tsc && NODE_OPTIONS=\"-C development\" vitest run dev/*.test.js",
     "build": "npm run clean && tsc && micromark-build",
     "prepack": "npm run build",
     "clean": "rimraf lib/ index.js index.test.js dev/**/*.js"
