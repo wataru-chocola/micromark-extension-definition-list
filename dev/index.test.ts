@@ -1,3 +1,5 @@
+import { test, expect } from 'vitest';
+
 import { defList, defListHtml } from './index.js';
 import { micromark } from 'micromark';
 

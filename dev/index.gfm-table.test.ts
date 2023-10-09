@@ -1,3 +1,5 @@
+import { test, expect } from 'vitest';
+
 import { micromark } from 'micromark';
 import { gfmTable, gfmTableHtml } from 'micromark-extension-gfm-table';
 import { defList, defListHtml } from './index.js';
