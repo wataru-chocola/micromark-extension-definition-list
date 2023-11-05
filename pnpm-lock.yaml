@@ -32,10 +32,10 @@ dependencies:
 
 devDependencies:
   '@types/assert':
-    specifier: ^1.5.7
+    specifier: 1.5.7
     version: 1.5.7
   '@types/debug':
-    specifier: ^4.1.9
+    specifier: 4.1.9
     version: 4.1.9
   '@typescript-eslint/eslint-plugin':
     specifier: 6.6.0
@@ -68,7 +68,7 @@ devDependencies:
     specifier: 2.0.0
     version: 2.0.0
   npm-check-updates:
-    specifier: ^16.14.5
+    specifier: 16.14.5
     version: 16.14.5
   prettier:
     specifier: 3.0.3
@@ -80,7 +80,7 @@ devDependencies:
     specifier: 5.2.2
     version: 5.2.2
   vitest:
-    specifier: ^0.34.6
+    specifier: 0.34.6
     version: 0.34.6
 
 packages:
