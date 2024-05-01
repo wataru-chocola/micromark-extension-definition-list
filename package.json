@@ -1,5 +1,5 @@
 {
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.6",
   "name": "micromark-extension-definition-list",
   "version": "2.0.0",
   "description": "micromark extension to support definition lists",
