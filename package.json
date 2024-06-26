@@ -59,7 +59,7 @@
     "prettier": "3.2.5",
     "rimraf": "5.0.7",
     "typescript": "5.4.3",
-    "vitest": "1.5.3"
+    "vitest": "1.6.0"
   },
   "keywords": [
     "micromark",
