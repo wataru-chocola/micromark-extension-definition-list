@@ -42,15 +42,14 @@
     "ts-dedent": "^2.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/assert": "1.5.11",
     "@types/debug": "4.1.12",
     "@types/node": "22.10.5",
-    "@typescript-eslint/eslint-plugin": "6.21.0",
-    "@typescript-eslint/parser": "6.21.0",
     "debug": "4.4.0",
-    "eslint": "8.57.1",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-import": "2.29.1",
+    "eslint": "9.17.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "2.31.0",
     "micromark": "4.0.1",
     "micromark-build": "2.0.3",
     "micromark-extension-gfm": "3.0.0",
@@ -59,6 +58,7 @@
     "prettier": "3.4.2",
     "rimraf": "6.0.1",
     "typescript": "5.7.2",
+    "typescript-eslint": "^8.19.0",
     "vitest": "2.1.8"
   },
   "keywords": [
@@ -67,7 +67,7 @@
   ],
   "scripts": {
     "format": "prettier --write \"./dev/**/*.{js,ts,json}\"",
-    "lint": "eslint ./dev/",
+    "lint": "eslint --no-warn-ignored ./dev/**/*.ts",
     "lint-fix": "eslint --fix ./dev/**/*.{ts} && prettier --write ./dev/**/*.{ts}",
     "test": "npm run build && vitest run --config ./vitest.not-dev.config.ts .js",
     "test-dev": "tsc && NODE_OPTIONS=\"-C development\" vitest run dev/*.test.js",

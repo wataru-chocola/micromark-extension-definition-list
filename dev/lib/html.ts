@@ -1,4 +1,4 @@
-import { CompileContext, Token } from 'micromark-util-types';
+import type { CompileContext, Token } from 'micromark-util-types';
 import { tokenTypes } from './types.js';
 
 export const defListHtml = {
