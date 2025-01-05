@@ -6,7 +6,7 @@ export function formatEvent(event: Event): FormattedEvent {
   let content = '';
   try {
     content = event[2].sliceSerialize(event[1], true);
-  } catch (e) {
+  } catch (_e) {
     content = '<maybe incomplete token>';
   }
   return [event[0], event[1].type, content];
