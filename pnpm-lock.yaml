@@ -34,7 +34,7 @@ importers:
         version: 2.2.0
     devDependencies:
       '@eslint/js':
-        specifier: ^9.17.0
+        specifier: 9.17.0
         version: 9.17.0
       '@types/assert':
         specifier: 1.5.11
@@ -52,7 +52,7 @@ importers:
         specifier: 9.17.0
         version: 9.17.0
       eslint-import-resolver-typescript:
-        specifier: ^3.7.0
+        specifier: 3.7.0
         version: 3.7.0(eslint-plugin-import@2.31.0)(eslint@9.17.0)
       eslint-plugin-import:
         specifier: 2.31.0
@@ -82,7 +82,7 @@ importers:
         specifier: 5.7.2
         version: 5.7.2
       typescript-eslint:
-        specifier: ^8.19.0
+        specifier: 8.19.0
         version: 8.19.0(eslint@9.17.0)(typescript@5.7.2)
       vitest:
         specifier: 2.1.8
