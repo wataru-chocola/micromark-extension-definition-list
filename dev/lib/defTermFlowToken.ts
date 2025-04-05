@@ -3,8 +3,7 @@ import { types } from 'micromark-util-symbol';
 import { splice } from 'micromark-util-chunked';
 
 import { tokenTypes } from './types.js';
-import { formatEvents } from './utils.js';
-import assert from 'assert';
+import { assert, formatEvents } from './utils.js';
 import Debug from 'debug';
 
 const debug = Debug('micromark-extension-definition-list:defTermFlowToken');

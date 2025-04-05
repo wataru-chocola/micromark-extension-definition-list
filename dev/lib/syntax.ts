@@ -14,10 +14,9 @@ import { factorySpace } from 'micromark-factory-space';
 import { markdownSpace } from 'micromark-util-character';
 import { blankLine } from 'micromark-core-commonmark';
 import { tokenTypes } from './types.js';
-import { formatEvents, formatEvent, code2Str } from './utils.js';
+import { assert, formatEvents, formatEvent, code2Str } from './utils.js';
 import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken.js';
 import { splice } from 'micromark-util-chunked';
-import assert from 'assert';
 import Debug from 'debug';
 
 const debug = Debug('micromark-extension-definition-list:syntax');

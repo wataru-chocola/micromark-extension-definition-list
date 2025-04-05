@@ -41,3 +41,9 @@ export function code2Str(code: Code): string {
     return '0x' + code.toString(16);
   }
 }
+
+export function assert(condition: unknown, message?: string): asserts condition {
+  if (!condition) {
+    throw new Error(message || 'Assertion failed');
+  }
+}
