@@ -17,7 +17,7 @@ import { tokenTypes } from './types.js';
 import { formatEvents, formatEvent, code2Str } from './utils.js';
 import { analyzeDefTermFlow, subtokenizeDefTerm } from './defTermFlowToken.js';
 import { splice } from 'micromark-util-chunked';
-import assert from 'assert';
+import { ok as assert } from 'devlop';
 import Debug from 'debug';
 
 const debug = Debug('micromark-extension-definition-list:syntax');

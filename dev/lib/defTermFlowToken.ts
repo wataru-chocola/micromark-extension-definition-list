@@ -4,7 +4,7 @@ import { splice } from 'micromark-util-chunked';
 
 import { tokenTypes } from './types.js';
 import { formatEvents } from './utils.js';
-import assert from 'assert';
+import { ok as assert } from 'devlop';
 import Debug from 'debug';
 
 const debug = Debug('micromark-extension-definition-list:defTermFlowToken');
