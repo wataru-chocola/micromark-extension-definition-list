@@ -32,7 +32,6 @@
     "default": "./index.js"
   },
   "dependencies": {
-    "assert": "^2.0.0",
     "micromark-core-commonmark": "^2.0.0",
     "micromark-factory-space": "^2.0.0",
     "micromark-util-character": "^2.0.1",
@@ -43,10 +42,10 @@
   },
   "devDependencies": {
     "@eslint/js": "9.17.0",
-    "@types/assert": "1.5.11",
     "@types/debug": "4.1.12",
     "@types/node": "22.10.10",
     "debug": "4.4.0",
+    "devlop": "^1.1.0",
     "eslint": "9.17.0",
     "eslint-import-resolver-typescript": "3.7.0",
     "eslint-plugin-import": "2.31.0",
