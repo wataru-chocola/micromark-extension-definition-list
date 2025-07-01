@@ -45,7 +45,7 @@
     "@types/debug": "4.1.12",
     "@types/node": "22.15.3",
     "debug": "4.4.0",
-    "devlop": "^1.1.0",
+    "devlop": "1.1.0",
     "eslint": "9.17.0",
     "eslint-import-resolver-typescript": "3.7.0",
     "eslint-plugin-import": "2.31.0",
