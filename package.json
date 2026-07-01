@@ -47,7 +47,7 @@
     "debug": "4.4.3",
     "devlop": "1.1.0",
     "eslint": "10.3.0",
-    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-import-resolver-typescript": "4.4.5",
     "eslint-plugin-import": "2.32.0",
     "micromark": "4.0.2",
     "micromark-build": "2.0.3",
