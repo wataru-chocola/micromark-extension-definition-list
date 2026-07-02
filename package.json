@@ -59,7 +59,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.19.1",
     "vite": "7.3.6",
-    "vitest": "4.1.5"
+    "vitest": "4.1.9"
   },
   "keywords": [
     "micromark",
