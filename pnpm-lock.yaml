@@ -82,11 +82,11 @@ importers:
         specifier: 8.19.1
         version: 8.19.1(eslint@10.3.0)(typescript@5.9.3)
       vite:
-        specifier: 7.3.3
-        version: 7.3.3(@types/node@24.10.15)
+        specifier: 7.3.6
+        version: 7.3.6(@types/node@24.10.15)
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@24.10.15)(vite@7.3.3(@types/node@24.10.15))
+        version: 4.1.5(@types/node@24.10.15)(vite@7.3.6(@types/node@24.10.15))
 
 packages:
 
@@ -1762,9 +1762,6 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  picocolors@1.0.0:
-    resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
-
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -2047,8 +2044,8 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  vite@7.3.3:
-    resolution: {integrity: sha512-/4XH147Ui7OGTjg3HbdWe5arnZQSbfuRzdr9Ec7TQi5I7R+ir0Rlc9GIvD4v0XZurELqA035KVXJXpR61xhiTA==}
+  vite@7.3.6:
+    resolution: {integrity: sha512-4XP60spRGjSZFf1qYH+dJIkK2znL3zQfl9KkOV9MkkRR/3Dls0dxaBsQPTloEc5BLXWPL9vsOxopxyKoMmDueg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -2784,13 +2781,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.5(vite@7.3.3(@types/node@24.10.15))':
+  '@vitest/mocker@4.1.5(vite@7.3.6(@types/node@24.10.15))':
     dependencies:
       '@vitest/spy': 4.1.5
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.3(@types/node@24.10.15)
+      vite: 7.3.6(@types/node@24.10.15)
 
   '@vitest/pretty-format@4.1.5':
     dependencies:
@@ -4053,8 +4050,6 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  picocolors@1.0.0: {}
-
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -4415,13 +4410,13 @@ snapshots:
     dependencies:
       browserslist: 4.22.1
       escalade: 3.1.1
-      picocolors: 1.0.0
+      picocolors: 1.1.1
 
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.0
 
-  vite@7.3.3(@types/node@24.10.15):
+  vite@7.3.6(@types/node@24.10.15):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -4433,10 +4428,10 @@ snapshots:
       '@types/node': 24.10.15
       fsevents: 2.3.3
 
-  vitest@4.1.5(@types/node@24.10.15)(vite@7.3.3(@types/node@24.10.15)):
+  vitest@4.1.5(@types/node@24.10.15)(vite@7.3.6(@types/node@24.10.15)):
     dependencies:
       '@vitest/expect': 4.1.5
-      '@vitest/mocker': 4.1.5(vite@7.3.3(@types/node@24.10.15))
+      '@vitest/mocker': 4.1.5(vite@7.3.6(@types/node@24.10.15))
       '@vitest/pretty-format': 4.1.5
       '@vitest/runner': 4.1.5
       '@vitest/snapshot': 4.1.5
@@ -4453,7 +4448,7 @@ snapshots:
       tinyexec: 1.1.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vite: 7.3.3(@types/node@24.10.15)
+      vite: 7.3.6(@types/node@24.10.15)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.10.15
