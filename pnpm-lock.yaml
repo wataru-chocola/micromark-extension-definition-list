@@ -37,8 +37,8 @@ importers:
         specifier: 4.1.13
         version: 4.1.13
       '@types/node':
-        specifier: 24.10.15
-        version: 24.10.15
+        specifier: 24.13.3
+        version: 24.13.3
       debug:
         specifier: 4.4.3
         version: 4.4.3
@@ -83,10 +83,10 @@ importers:
         version: 8.19.1(eslint@10.3.0)(typescript@5.9.3)
       vite:
         specifier: 7.3.6
-        version: 7.3.6(@types/node@24.10.15)
+        version: 7.3.6(@types/node@24.13.3)
       vitest:
         specifier: 4.1.9
-        version: 4.1.9(@types/node@24.10.15)(vite@7.3.6(@types/node@24.10.15))
+        version: 4.1.9(@types/node@24.13.3)(vite@7.3.6(@types/node@24.13.3))
 
 packages:
 
@@ -633,8 +633,8 @@ packages:
   '@types/ms@0.7.32':
     resolution: {integrity: sha512-xPSg0jm4mqgEkNhowKgZFBNtwoEwF6gJ4Dhww+GFpm3IgtNseHQZ5IqdNwnquZEoANxyDAKDRAdVo4Z72VvD/g==}
 
-  '@types/node@24.10.15':
-    resolution: {integrity: sha512-BgjLoRuSr0MTI5wA6gMw9Xy0sFudAaUuvrnjgGx9wZ522fYYLA5SYJ+1Y30vTcJEG+DRCyDHx/gzQVfofYzSdg==}
+  '@types/node@24.13.3':
+    resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
 
   '@types/resolve@1.20.3':
     resolution: {integrity: sha512-NH5oErHOtHZYcjCtg69t26aXEk4BN2zLWqf7wnDZ+dpe0iR7Rds1SPGEItl3fca21oOe0n3OCnZ4W7jBxu7FOw==}
@@ -2026,8 +2026,8 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
   unrs-resolver@1.10.1:
     resolution: {integrity: sha512-EFrL7Hw4kmhZdwWO3dwwFJo6hO3FXuQ6Bg8BK/faHZ9m1YxqBS31BNSTxklIQkxK/4LlV8zTYnPsIRLBzTzjCA==}
@@ -2625,9 +2625,9 @@ snapshots:
 
   '@types/ms@0.7.32': {}
 
-  '@types/node@24.10.15':
+  '@types/node@24.13.3':
     dependencies:
-      undici-types: 7.16.0
+      undici-types: 7.18.2
 
   '@types/resolve@1.20.3': {}
 
@@ -2776,13 +2776,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.9(vite@7.3.6(@types/node@24.10.15))':
+  '@vitest/mocker@4.1.9(vite@7.3.6(@types/node@24.13.3))':
     dependencies:
       '@vitest/spy': 4.1.9
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.6(@types/node@24.10.15)
+      vite: 7.3.6(@types/node@24.13.3)
 
   '@vitest/pretty-format@4.1.9':
     dependencies:
@@ -4375,7 +4375,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  undici-types@7.16.0: {}
+  undici-types@7.18.2: {}
 
   unrs-resolver@1.10.1:
     dependencies:
@@ -4411,7 +4411,7 @@ snapshots:
     dependencies:
       punycode: 2.3.0
 
-  vite@7.3.6(@types/node@24.10.15):
+  vite@7.3.6(@types/node@24.13.3):
     dependencies:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
@@ -4420,13 +4420,13 @@ snapshots:
       rollup: 4.60.3
       tinyglobby: 0.2.16
     optionalDependencies:
-      '@types/node': 24.10.15
+      '@types/node': 24.13.3
       fsevents: 2.3.3
 
-  vitest@4.1.9(@types/node@24.10.15)(vite@7.3.6(@types/node@24.10.15)):
+  vitest@4.1.9(@types/node@24.13.3)(vite@7.3.6(@types/node@24.13.3)):
     dependencies:
       '@vitest/expect': 4.1.9
-      '@vitest/mocker': 4.1.9(vite@7.3.6(@types/node@24.10.15))
+      '@vitest/mocker': 4.1.9(vite@7.3.6(@types/node@24.13.3))
       '@vitest/pretty-format': 4.1.9
       '@vitest/runner': 4.1.9
       '@vitest/snapshot': 4.1.9
@@ -4443,10 +4443,10 @@ snapshots:
       tinyexec: 1.1.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vite: 7.3.6(@types/node@24.10.15)
+      vite: 7.3.6(@types/node@24.13.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 24.10.15
+      '@types/node': 24.13.3
     transitivePeerDependencies:
       - msw
 
