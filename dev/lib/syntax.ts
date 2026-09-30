@@ -85,6 +85,15 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
   }
 
   // merge definition lists
+  //
+  // The tokenizer starts a new defList for each term, so three terms in a row
+  // arrive as three adjacent lists. When a list's exit event is followed by
+  // another list's enter event (with only line or block quote prefixes
+  // between them), both events are deleted, so the second list's terms and
+  // descriptions become part of the first list.
+  //
+  // dlStack holds the tokens of the lists that are still open. Its top is the
+  // list that the next adjacent list merges into.
   const dlStack = [];
   index = 0;
   while (index < events.length) {
@@ -106,7 +115,16 @@ function resolveAllDefinitionTerm(events: Event[], context: TokenizeContext): Ev
         i++;
       }
       if (defListFound) {
-        event[1].end = Object.assign({}, events[index + i][1].end);
+        // Extend the list being merged into (the top of dlStack) so that it
+        // ends where the next list ends.
+        //
+        // Do not extend event[1], the token of the exit event being deleted.
+        // For the first merge it is the same token, but from the second merge
+        // on it belongs to a list that was itself merged away, so extending it
+        // left the surviving list ending at its second term.
+        const token = dlStack[dlStack.length - 1];
+        assert(token != null, 'expect a token of balanced enter event');
+        token.end = Object.assign({}, events[index + i][1].end);
         splice(events, index, i + 1, []);
         index -= i;
       } else {
