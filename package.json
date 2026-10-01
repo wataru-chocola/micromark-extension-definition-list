@@ -52,7 +52,7 @@
     "micromark": "4.0.2",
     "micromark-build": "2.0.3",
     "micromark-extension-gfm": "3.0.0",
-    "micromark-extension-gfm-table": "2.1.1",
+    "micromark-extension-gfm-table": "2.1.2",
     "npm-check-updates": "17.1.18",
     "prettier": "3.8.5",
     "rimraf": "6.1.3",
