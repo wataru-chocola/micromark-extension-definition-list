@@ -55,8 +55,8 @@ importers:
         specifier: 2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.19.1(eslint@10.3.0)(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.5)(eslint@10.3.0)
       micromark:
-        specifier: 4.0.2
-        version: 4.0.2
+        specifier: 4.0.3
+        version: 4.0.3
       micromark-build:
         specifier: 2.0.3
         version: 2.0.3
@@ -1610,6 +1610,9 @@ packages:
   micromark-util-decode-numeric-character-reference@2.0.0:
     resolution: {integrity: sha512-pIgcsGxpHEtTG/rPJRz/HOLSqp5VTuIIjXlPI+6JSDlK2oljApusG6KzpS8AF0ENUMCHlC/IBb5B9xdFiVlm5Q==}
 
+  micromark-util-edit-map@1.0.0:
+    resolution: {integrity: sha512-Pa2ljlsEL6sVwFaYeyrOLSYbQt73JvGbPOYFq+9AElXiSnfI5Q4465RRZ1sHv7lDjDOnGRDDaqPXqClqWK/q1Q==}
+
   micromark-util-encode@2.0.0:
     resolution: {integrity: sha512-pS+ROfCXAGLWCOc8egcBvT0kf27GoWMqtdarNfDcjb6YLuV5cM3ioG45Ys2qOVqeqSbjaKg72vU+Wby3eddPsA==}
 
@@ -1634,8 +1637,8 @@ packages:
   micromark-util-types@2.0.0:
     resolution: {integrity: sha512-oNh6S2WMHWRZrmutsRmDDfkzKtxF+bc2VxLC9dvtrDIRFln627VsFP6fLMgTryGDljgLPjkrzQSDcPrjPyDJ5w==}
 
-  micromark@4.0.2:
-    resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
+  micromark@4.0.3:
+    resolution: {integrity: sha512-oGYfQzHSG5dOMovQcJ3fyTmZlWAWpi0XA0sJwJs+i6OT88o1+Jtw/8z0CmdowSLxGhhFK89rQ/oXph/wN02PNw==}
 
   micromatch@4.0.5:
     resolution: {integrity: sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==}
@@ -3879,6 +3882,10 @@ snapshots:
     dependencies:
       micromark-util-symbol: 2.0.0
 
+  micromark-util-edit-map@1.0.0:
+    dependencies:
+      micromark-util-types: 2.0.0
+
   micromark-util-encode@2.0.0: {}
 
   micromark-util-html-tag-name@2.0.0: {}
@@ -3908,7 +3915,7 @@ snapshots:
 
   micromark-util-types@2.0.0: {}
 
-  micromark@4.0.2:
+  micromark@4.0.3:
     dependencies:
       '@types/debug': 4.1.13
       debug: 4.4.3
@@ -3920,6 +3927,7 @@ snapshots:
       micromark-util-chunked: 2.0.0
       micromark-util-combine-extensions: 2.0.0
       micromark-util-decode-numeric-character-reference: 2.0.0
+      micromark-util-edit-map: 1.0.0
       micromark-util-encode: 2.0.0
       micromark-util-normalize-identifier: 2.0.0
       micromark-util-resolve-all: 2.0.0
